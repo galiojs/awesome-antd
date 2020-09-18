@@ -2,6 +2,7 @@
   "name": "@galiojs/awesome-antd",
   "version": "0.1.1",
   "main": "es/index.js",
+  "license": "MIT",
   "dependencies": {
     "@babel/core": "7.9.0",
     "@babel/runtime": "7.11.2",
