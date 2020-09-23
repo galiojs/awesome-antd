@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import AweTreeSelect from './../';
+import AweTreeSelect from '..';
 
 describe('Testing <AweTreeSelect />', () => {
   test('`fieldNames` works as expected.', () => {
