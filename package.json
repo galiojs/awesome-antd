@@ -85,7 +85,7 @@
   "scripts": {
     "test": "node scripts/test.js",
     "compile": "BABEL_ENV=production gulp compile",
-    "prepublishOnly": "npm run test && npm run compile"
+    "prepublishOnly": "npm run test -- --watchAll=false && npm run compile"
   },
   "eslintConfig": {
     "extends": "react-app"
