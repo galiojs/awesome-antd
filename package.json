@@ -83,10 +83,9 @@
     "react": "16.x"
   },
   "scripts": {
-    "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "compile": "BABEL_ENV=production gulp compile"
+    "compile": "BABEL_ENV=production gulp compile",
+    "prepublishOnly": "npm run test && npm run compile"
   },
   "eslintConfig": {
     "extends": "react-app"
