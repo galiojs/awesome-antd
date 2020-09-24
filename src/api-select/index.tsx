@@ -1,5 +1,6 @@
 import React from 'react';
 import get from 'lodash.get';
+import debounce from 'lodash.debounce';
 import shallowequal from 'shallowequal';
 import { SelectValue } from 'antd/lib/select';
 
@@ -15,7 +16,17 @@ type FieldNames = {
 type EnhancedOnChange = (value: SelectValue, option: any, optionElem: React.ReactElement) => void;
 
 export interface AweApiSelectProps extends AweSelectProps {
+  /**
+   * @deprecated As of release v0.1.3, replaced by {@link #trigger}.
+   *   The same as `trigger="onDidMount"`.
+   */
   requestOnDidMount?: boolean;
+
+  /**
+   * Defaults to `onFocus`
+   */
+  trigger?: 'onDidMount' | 'onFocus' | 'onSearch';
+
   dataService?: (q?: any) => any;
   optionWithValue?: boolean;
   fieldNames?: FieldNames;
@@ -30,7 +41,7 @@ const DEFAULT_FIELD_NAMES = {
 
 export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
   static defaultProps: Partial<AweApiSelectProps> = {
-    requestOnDidMount: false,
+    trigger: 'onFocus',
     optionWithValue: false,
     fieldNames: DEFAULT_FIELD_NAMES,
     disabledOptionValues: [],
@@ -70,15 +81,22 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
     };
   }
 
-  private _attemptToGetData = (forced = false) => {
+  private _attemptToGetData = (forced = false, q?: string) => {
     if (!this._dataServiceRef.current) {
       return;
     }
-    this._dataServiceRef.current.getData(forced);
+    if (q === undefined) {
+      this._dataServiceRef.current.getData(forced);
+      return;
+    }
+    this._dataServiceRef.current.getDataByQ(q, forced);
   };
 
   private _focusHandler = () => {
-    this._attemptToGetData();
+    const { trigger } = this.props;
+    if (trigger === 'onFocus') {
+      this._attemptToGetData();
+    }
 
     const { onFocus } = this.props;
     if (typeof onFocus !== 'function') {
@@ -87,19 +105,35 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
     onFocus();
   };
 
+  private _searchHandler = (keyword: string) => {
+    const { trigger } = this.props;
+    if (trigger !== 'onSearch') {
+      return;
+    }
+    this._attemptToGetData(true, keyword);
+  };
+  private _debouncedSearchHandler = debounce(this._searchHandler, 200);
+
   render() {
     const {
       requestOnDidMount,
+      trigger,
       dataService,
       fieldNames,
       disabledOptionValues,
       ...rest
     } = this.props;
 
+    if (process.env.NODE_ENV === 'development' && requestOnDidMount !== undefined) {
+      console.warn(
+        `As of release v0.1.3, "requestOnDidMount" was deprecated and this API will be removed in v1.x. Please use "trigger" instead.`
+      );
+    }
+
     return (
       <DataService
         ref={this._dataServiceRef}
-        requestOnDidMount={requestOnDidMount}
+        requestOnDidMount={(requestOnDidMount && trigger === 'onFocus') || trigger === 'onDidMount'}
         dataService={dataService}
       >
         {({ data = [] }) => (
@@ -108,6 +142,7 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
             filterOption={defaultFilterOption}
             {...rest}
             onFocus={this._focusHandler}
+            onSearch={this._debouncedSearchHandler}
             onChange={this._getChangeHandler(data)}
           >
             {data.map((option: any) => {
