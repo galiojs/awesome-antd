@@ -1,7 +1,12 @@
 import React from 'react';
 import Select, { SelectProps } from 'antd/lib/select';
 
-export class AweSelect extends React.PureComponent<SelectProps> {
+export interface AweSelectProps extends SelectProps {}
+
+export class AweSelect extends React.PureComponent<AweSelectProps> {
+  static OptGroup = Select.OptGroup;
+  static Option = Select.Option;
+
   render() {
     return <Select {...this.props} />;
   }
