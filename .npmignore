@@ -2,6 +2,7 @@
 /public
 /scripts
 /src
+/.vscode
 
 .gitignore
 .npmignore
