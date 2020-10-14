@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import AweApiSelect from './..';
 
 jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const dataService = async () => {
   const result = await axios.get('/api/mock/options');
@@ -26,7 +27,7 @@ const options = [
 
 describe('Testing <AweApiSelect />', () => {
   test('fetches options from an API and displays them', async () => {
-    (axios.get as jest.Mock).mockImplementationOnce(() => Promise.resolve({ data: options }));
+    mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
     render(<AweApiSelect dataService={dataService} />);
 
@@ -40,7 +41,7 @@ describe('Testing <AweApiSelect />', () => {
   });
 
   test('turns on `requestOnDidMount`', async () => {
-    (axios.get as jest.Mock).mockImplementationOnce(() => Promise.resolve({ data: options }));
+    mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
     render(<AweApiSelect defaultOpen requestOnDidMount dataService={dataService} />);
 
@@ -52,7 +53,7 @@ describe('Testing <AweApiSelect />', () => {
   });
 
   test('customized `fieldNames`', async () => {
-    (axios.get as jest.Mock).mockImplementationOnce(() => Promise.resolve({ data: options }));
+    mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
     render(
       <AweApiSelect
@@ -76,7 +77,7 @@ describe('Testing <AweApiSelect />', () => {
   });
 
   test('handle `onSearch`', async () => {
-    (axios.get as jest.Mock).mockImplementation((__, { params: { keyword } }) => {
+    mockedAxios.get.mockImplementation((__, { params: { keyword } }) => {
       return Promise.resolve({
         data: options.filter(({ label }) =>
           String(label).toLowerCase().includes(String(keyword).toLowerCase())

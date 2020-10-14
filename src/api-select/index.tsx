@@ -82,14 +82,11 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
   }
 
   private _attemptToGetData = (forced = false, q?: string) => {
-    if (!this._dataServiceRef.current) {
-      return;
-    }
     if (q === undefined) {
-      this._dataServiceRef.current.getData(forced);
+      this._dataServiceRef.current?.getData(forced);
       return;
     }
-    this._dataServiceRef.current.getDataByQ(q, forced);
+    this._dataServiceRef.current?.getDataByQ(q, forced);
   };
 
   private _focusHandler = () => {
@@ -98,11 +95,7 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
       this._attemptToGetData();
     }
 
-    const { onFocus } = this.props;
-    if (typeof onFocus !== 'function') {
-      return;
-    }
-    onFocus();
+    this.props.onFocus?.();
   };
 
   private _searchHandler = (keyword: string) => {

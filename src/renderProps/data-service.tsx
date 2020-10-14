@@ -96,6 +96,10 @@ export class DataService extends React.PureComponent<DataServiceProps, DataServi
     this._getData(q, callback);
   };
 
+  setData = (getNewData: (data: any) => any, callback?: () => void) => {
+    this.setState(({ data }) => ({ data: getNewData(data) }), callback);
+  };
+
   render() {
     const { data, requesting } = this.state;
     const { children } = this.props;
