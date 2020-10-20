@@ -2,7 +2,6 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 
 import AweInput from "..";
-import { async } from "q";
 
 describe("Testing <AweInput />", () => {
   test("max character onChange", () => {
