@@ -2,11 +2,13 @@ import React from "react";
 import Input, { InputProps } from "antd/lib/input";
 
 export interface AweInputProps extends InputProps {
-  maxCharacter: number;
+  maxLength: number;
+  showLengthCount: boolean;
+  suffix?: string | React.ReactNode;
 }
 
 export interface AweInputState {
-  suffixText: string;
+  lengthCount: string;
 }
 
 export class AweInput extends React.PureComponent<
@@ -14,60 +16,91 @@ export class AweInput extends React.PureComponent<
   AweInputState
 > {
   static defaultProps: Partial<AweInputProps> = {
-    maxCharacter: 0
+    maxLength: 0,
+    showLengthCount: false
   };
 
   state = {
-    suffixText: ""
+    lengthCount: "0"
   };
 
   componentDidMount() {
-    if ("defaultValue" in this.props) {
+    if (
+      "defaultValue" in this.props &&
+      !("value" in this.props) &&
+      this.props.showLengthCount
+    ) {
       this.setState({
-        suffixText: this.getSuffixText(this.props.defaultValue)
+        lengthCount: this._getLengthCount(this.props.defaultValue)
+      });
+    }
+    if ("value" in this.props && this.props.showLengthCount) {
+      this.setState({
+        lengthCount: this._getLengthCount(this.props.value)
       });
     }
   }
 
-  private getSuffixText = (value: any) => {
-    const { maxCharacter } = this.props;
-    let text = "";
-    if (maxCharacter > 0) {
-      if (Array.isArray(value)) {
-        text = value.join();
-      }
-      if (["string", "number"].includes(typeof value)) {
-        text = value;
-      }
-      return `${text.length}/${maxCharacter}`;
-    } else {
-      return text;
+  private _getLengthCount = (
+    value?: string | ReadonlyArray<string> | number
+  ) => {
+    const { maxLength } = this.props;
+
+    if (value === null || value === undefined) {
+      return "0";
     }
+
+    let text = value;
+    if (Array.isArray(value)) {
+      text = value.join();
+    }
+    if (typeof value == "number") {
+      text = value.toString();
+    }
+    if (maxLength <= 0) {
+      return (text as string).length.toString();
+    }
+    return `${(text as string).length}/${maxLength}`;
   };
 
-  private onChange = (e: any) => {
-    const { onChange } = this.props;
-    this.setState({
-      suffixText: this.getSuffixText(e.target.value)
-    });
+  private _onChange = (e: any) => {
+    const { onChange, showLengthCount } = this.props;
+    if (showLengthCount) {
+      this.setState({
+        lengthCount: this._getLengthCount(e.target.value)
+      });
+    }
     if (typeof onChange !== "function") {
       return;
-    } else {
-      onChange(e);
     }
+    onChange(e);
   };
 
   render() {
-    const { maxCharacter, value, ...restProps } = this.props;
-    const { suffixText } = this.state;
+    const {
+      value,
+      suffix,
+      showLengthCount,
+      maxLength,
+      ...restProps
+    } = this.props;
+    const { lengthCount } = this.state;
+
     const extraProps: Partial<AweInputProps> = {};
+
     if ("value" in this.props) {
       extraProps.value = value;
     }
+
     return (
       <Input
-        suffix={suffixText}
-        onChange={this.onChange}
+        suffix={
+          showLengthCount
+            ? `${lengthCount} ${suffix !== undefined ? suffix : ""}`
+            : suffix
+        }
+        onChange={this._onChange}
+        maxLength={maxLength}
         {...restProps}
         {...extraProps}
       />
