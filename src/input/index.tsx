@@ -2,13 +2,32 @@ import React from "react";
 import Input, { InputProps } from "antd/lib/input";
 
 export interface AweInputProps extends InputProps {
-  maxLength: number;
   showLengthCount: boolean;
-  suffix?: string | React.ReactNode;
 }
 
 export interface AweInputState {
   lengthCount: string;
+}
+
+function getLengthCount(
+  value?: string | ReadonlyArray<string> | number,
+  maxLength?: number
+) {
+  if (value === null || value === undefined) {
+    return "0";
+  }
+
+  let text = value;
+  if (Array.isArray(value)) {
+    text = value.join();
+  }
+  if (typeof value == "number") {
+    text = value.toString();
+  }
+  if (maxLength === undefined) {
+    return (text as string).length.toString();
+  }
+  return `${(text as string).length}/${maxLength}`;
 }
 
 export class AweInput extends React.PureComponent<
@@ -16,13 +35,21 @@ export class AweInput extends React.PureComponent<
   AweInputState
 > {
   static defaultProps: Partial<AweInputProps> = {
-    maxLength: 0,
     showLengthCount: false
   };
 
   state = {
     lengthCount: "0"
   };
+
+  static getDerivedStateFromProps(props: AweInputProps) {
+    if ("value" in props && props.showLengthCount) {
+      return {
+        lengthCount: getLengthCount(props.value, props.maxLength)
+      };
+    }
+    return null;
+  }
 
   componentDidMount() {
     if (
@@ -31,49 +58,25 @@ export class AweInput extends React.PureComponent<
       this.props.showLengthCount
     ) {
       this.setState({
-        lengthCount: this._getLengthCount(this.props.defaultValue)
-      });
-    }
-    if ("value" in this.props && this.props.showLengthCount) {
-      this.setState({
-        lengthCount: this._getLengthCount(this.props.value)
+        lengthCount: getLengthCount(
+          this.props.defaultValue,
+          this.props.maxLength
+        )
       });
     }
   }
 
-  private _getLengthCount = (
-    value?: string | ReadonlyArray<string> | number
-  ) => {
-    const { maxLength } = this.props;
-
-    if (value === null || value === undefined) {
-      return "0";
-    }
-
-    let text = value;
-    if (Array.isArray(value)) {
-      text = value.join();
-    }
-    if (typeof value == "number") {
-      text = value.toString();
-    }
-    if (maxLength <= 0) {
-      return (text as string).length.toString();
-    }
-    return `${(text as string).length}/${maxLength}`;
-  };
-
-  private _onChange = (e: any) => {
-    const { onChange, showLengthCount } = this.props;
+  private _changeHandler = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    const { onChange, showLengthCount, maxLength } = this.props;
     if (showLengthCount) {
       this.setState({
-        lengthCount: this._getLengthCount(e.target.value)
+        lengthCount: getLengthCount(evt.target.value, maxLength)
       });
     }
     if (typeof onChange !== "function") {
       return;
     }
-    onChange(e);
+    onChange(evt);
   };
 
   render() {
@@ -94,15 +97,11 @@ export class AweInput extends React.PureComponent<
 
     return (
       <Input
-        suffix={
-          showLengthCount
-            ? `${lengthCount} ${suffix !== undefined ? suffix : ""}`
-            : suffix
-        }
-        onChange={this._onChange}
+        suffix={showLengthCount ? lengthCount : suffix}
         maxLength={maxLength}
         {...restProps}
         {...extraProps}
+        onChange={this._changeHandler}
       />
     );
   }
