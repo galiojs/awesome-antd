@@ -14,7 +14,7 @@ function getLengthCount(
   maxLength?: number
 ) {
   if (value === null || value === undefined) {
-    return "0";
+    return maxLength !== undefined ? `0/${maxLength}` : "0";
   }
 
   let text = value;

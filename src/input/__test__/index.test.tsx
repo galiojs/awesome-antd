@@ -64,4 +64,14 @@ describe("Testing <AweInput />", () => {
     userEvent.type(screen.getByRole("textbox"), "12");
     expect(screen.queryByText("2")).toBeInTheDocument();
   });
+
+  test("Show the maximum length and count ,value is undefined", () => {
+    render(<AweInput value={undefined} maxLength={10} showLengthCount />);
+
+    expect(screen.queryByText("0/10")).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "hello" }
+    });
+    expect(screen.queryByText("0/10")).toBeInTheDocument();
+  });
 });
