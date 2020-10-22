@@ -53,7 +53,7 @@ describe("Testing <AweInput />", () => {
     expect(screen.queryByText("1")).toBeNull();
   });
 
-  test("Don't show the count ,controlled", () => {
+  test("Don't show the count ,uncontrolled", () => {
     render(<AweInput showLengthCount />);
 
     expect(screen.queryByText("0")).toBeInTheDocument();
