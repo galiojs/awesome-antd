@@ -74,4 +74,38 @@ describe("Testing <AweInput />", () => {
     });
     expect(screen.queryByText("0/10")).toBeInTheDocument();
   });
+
+  test("Show the maximum length and count ,show allowClear,value is undefined,  TextArea", async () => {
+    render(
+      <AweInput.TextArea
+        allowClear
+        value={undefined}
+        maxLength={10}
+        showLengthCount
+      />
+    );
+
+    await screen.findByLabelText("icon: close-circle");
+
+    expect(screen.queryByText("0/10")).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "hello" }
+    });
+    expect(screen.queryByText("0/10")).toBeInTheDocument();
+  });
+
+  test("show allowClear,value is undefined,  TextArea", async () => {
+    render(
+      <AweInput.TextArea
+        allowClear
+        value={undefined}
+        maxLength={10}
+        // showLengthCount
+      />
+    );
+
+    await screen.findByLabelText("icon: close-circle");
+
+    expect(screen.queryByText("0/10")).toBeNull();
+  });
 });
