@@ -72,4 +72,34 @@ describe('Testing <AweInput />', () => {
     });
     expect(screen.queryByText('0/10')).toBeInTheDocument();
   });
+
+  test('Show the maximum length and count ,value is undefined,  TextArea', async () => {
+    render(<AweInput.TextArea value={undefined} maxLength={10} showLengthCount />);
+
+    expect(screen.queryByText('0/10')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'hello' }
+    });
+    expect(screen.queryByText('0/10')).toBeInTheDocument();
+  });
+
+  test('Show the maximum length and count ,  TextArea', async () => {
+    render(<AweInput.TextArea value={undefined} maxLength={10} showLengthCount />);
+
+    expect(screen.queryByText('0/10')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'hello' }
+    });
+    expect(screen.queryByText('0/10')).toBeInTheDocument();
+  });
+
+  test('TextArea', async () => {
+    render(<AweInput.TextArea value="4" />);
+
+    expect(screen.queryByText('4')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'hello' }
+    });
+    expect(screen.queryByText('hello')).toBeNull();
+  });
 });
