@@ -1,0 +1,5 @@
+{
+    "prettier.singleQuote": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "prettier.printWidth": 100
+}

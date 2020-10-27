@@ -16,32 +16,37 @@ const dataService = async () => {
 };
 
 const childDataService = async (targetOption: CascaderOptionType) => {
-  const result = await axios.get<CascaderOptionType[]>('/api/mock/child-options', {
-    params: { parentOptionLabel: targetOption.label },
-  });
+  const result = await axios.get<CascaderOptionType[]>(
+    '/api/mock/child-options',
+    {
+      params: { parentOptionLabel: targetOption.label }
+    }
+  );
 
   return result.data;
 };
 
 const options: CascaderOptionType[] = [
   { label: 'Hello', value: '1', isLeaf: false },
-  { label: 'React', value: '2', isLeaf: false },
+  { label: 'React', value: '2', isLeaf: false }
 ];
 
 const childOptionsMap: { [K in 'Hello' | 'React']: CascaderOptionType[] } = {
   Hello: [
     { label: 'Child 1-1', value: '1-1' },
-    { label: 'Child 1-2', value: '1-2' },
+    { label: 'Child 1-2', value: '1-2' }
   ],
   React: [
     { label: 'Child 2-1', value: '2-1' },
-    { label: 'Child 2-2', value: '2-2' },
-  ],
+    { label: 'Child 2-2', value: '2-2' }
+  ]
 };
 
 describe('Testing <AweApiCascader />', () => {
   test('Fetches options on focus.', async () => {
-    mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
+    mockedAxios.get.mockImplementationOnce(() =>
+      Promise.resolve({ data: options })
+    );
 
     render(<AweApiCascader dataService={dataService} />);
 
@@ -58,9 +63,17 @@ describe('Testing <AweApiCascader />', () => {
   });
 
   test('Fetches options on did mount.', async () => {
-    mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
+    mockedAxios.get.mockImplementationOnce(() =>
+      Promise.resolve({ data: options })
+    );
 
-    render(<AweApiCascader popupVisible trigger="onDidMount" dataService={dataService} />);
+    render(
+      <AweApiCascader
+        popupVisible
+        trigger="onDidMount"
+        dataService={dataService}
+      />
+    );
 
     await screen.findByText('Hello');
     await screen.findByText('React');
@@ -70,15 +83,22 @@ describe('Testing <AweApiCascader />', () => {
   });
 
   test('Fetches child options.', async () => {
-    mockedAxios.get.mockImplementation((endpoint, { params: { parentOptionLabel } = {} } = {}) => {
-      if (endpoint.includes('child-options')) {
-        return Promise.resolve({ data: childOptionsMap[parentOptionLabel] });
+    mockedAxios.get.mockImplementation(
+      (endpoint, { params: { parentOptionLabel } = {} } = {}) => {
+        if (endpoint.includes('child-options')) {
+          return Promise.resolve({ data: childOptionsMap[parentOptionLabel] });
+        }
+
+        return Promise.resolve({ data: options });
       }
+    );
 
-      return Promise.resolve({ data: options });
-    });
-
-    render(<AweApiCascader dataService={dataService} childDataService={childDataService} />);
+    render(
+      <AweApiCascader
+        dataService={dataService}
+        childDataService={childDataService}
+      />
+    );
 
     await userEvent.click(screen.getByRole('textbox').parentElement);
 
