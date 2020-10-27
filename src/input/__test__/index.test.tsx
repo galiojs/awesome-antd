@@ -73,7 +73,7 @@ describe('Testing <AweInput />', () => {
     expect(screen.queryByText('0/10')).toBeInTheDocument();
   });
 
-  test('Show the maximum length and count ,  TextArea', () => {
+  test('Show the maximum length and count, TextArea', () => {
     render(<AweInput.TextArea value={undefined} maxLength={10} showLengthCount />);
 
     expect(screen.queryByText('0/10')).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('Testing <AweInput />', () => {
     expect(screen.queryByText('0/10')).toBeInTheDocument();
   });
 
-  test('TextArea', async () => {
+  test('Show the maximum length and count, beyond the control of length, TextArea', async () => {
     render(<AweInput.TextArea maxLength={4} showLengthCount />);
 
     expect(screen.queryByText('0/4')).toBeInTheDocument();
