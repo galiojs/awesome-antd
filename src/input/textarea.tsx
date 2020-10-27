@@ -1,6 +1,5 @@
 import React from 'react';
 import Input, { TextAreaProps } from 'antd/lib/input';
-import Icon from 'antd/lib/icon';
 
 import LengthCount from './length-count';
 
@@ -8,11 +7,7 @@ export interface AweTextAreaProps extends TextAreaProps {
   showLengthCount?: boolean;
 }
 
-export interface TextAreaState {
-  lengthCount: string;
-}
-
-export class TextArea extends React.PureComponent<AweTextAreaProps, TextAreaState> {
+export class TextArea extends React.PureComponent<AweTextAreaProps> {
   static defaultProps: Partial<AweTextAreaProps> = {
     showLengthCount: false
   };
@@ -25,14 +20,7 @@ export class TextArea extends React.PureComponent<AweTextAreaProps, TextAreaStat
         {({ lengthCount, onChange }) => {
           return (
             <>
-              <span
-                className={`ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn ${className ||
-                  ''}`}
-              >
-                <Input.TextArea {...restProps} onChange={onChange} />
-
-                <Icon type="close-circle" className="ant-input-textarea-clear-icon" />
-              </span>
+              <Input.TextArea {...restProps} onChange={onChange} />
               {showLengthCount && <div style={{ textAlign: 'right' }}>{lengthCount}</div>}
             </>
           );
