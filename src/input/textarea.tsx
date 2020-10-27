@@ -13,7 +13,7 @@ export class TextArea extends React.PureComponent<AweTextAreaProps> {
   };
 
   render() {
-    const { allowClear, showLengthCount, className, ...restProps } = this.props;
+    const { showLengthCount, ...restProps } = this.props;
 
     return (
       <LengthCount {...this.props}>

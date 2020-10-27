@@ -5,14 +5,10 @@ export interface LengthCountProps {
   defaultValue?: string | number | readonly string[];
   value?: string | number | readonly string[];
   maxLength?: number;
-  onChange: (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   children: (props: {
     lengthCount: string;
-    onChange: (
-      event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => void;
+    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   }) => JSX.Element;
 }
 
@@ -20,10 +16,7 @@ export interface LengthCountState {
   lengthCount: string;
 }
 
-function getLengthCount(
-  value?: string | ReadonlyArray<string> | number,
-  maxLength?: number
-) {
+function getLengthCount(value?: string | ReadonlyArray<string> | number, maxLength?: number) {
   if (value === null || value === undefined) {
     return maxLength !== undefined ? `0/${maxLength}` : '0';
   }
@@ -41,10 +34,7 @@ function getLengthCount(
   return `${(text as string).length}/${maxLength}`;
 }
 
-export class LengthCount extends React.PureComponent<
-  LengthCountProps,
-  LengthCountState
-> {
+export class LengthCount extends React.PureComponent<LengthCountProps, LengthCountState> {
   static defaultProps: Partial<LengthCountProps> = {
     showLengthCount: false
   };
@@ -63,23 +53,14 @@ export class LengthCount extends React.PureComponent<
   }
 
   componentDidMount() {
-    if (
-      'defaultValue' in this.props &&
-      !('value' in this.props) &&
-      this.props.showLengthCount
-    ) {
+    if (!('value' in this.props) && this.props.showLengthCount) {
       this.setState({
-        lengthCount: getLengthCount(
-          this.props.defaultValue,
-          this.props.maxLength
-        )
+        lengthCount: getLengthCount(this.props.defaultValue, this.props.maxLength)
       });
     }
   }
 
-  private _changeHandler = (
-    evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  private _changeHandler = (evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { onChange, showLengthCount, maxLength } = this.props;
     if (showLengthCount) {
       this.setState({
