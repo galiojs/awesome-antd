@@ -16,9 +16,7 @@ describe('Testing <AweInput />', () => {
   });
 
   test('Show the maximum length and count,have default value,uncontrolled ', () => {
-    render(
-      <AweInput maxLength={10} showLengthCount defaultValue="我是默认的值！" />
-    );
+    render(<AweInput maxLength={10} showLengthCount defaultValue="我是默认的值！" />);
 
     expect(screen.queryByText('7/10')).toBeInTheDocument();
 
@@ -73,39 +71,5 @@ describe('Testing <AweInput />', () => {
       target: { value: 'hello' }
     });
     expect(screen.queryByText('0/10')).toBeInTheDocument();
-  });
-
-  test('Show the maximum length and count ,show allowClear,value is undefined,  TextArea', async () => {
-    render(
-      <AweInput.TextArea
-        allowClear
-        value={undefined}
-        maxLength={10}
-        showLengthCount
-      />
-    );
-
-    await screen.findByLabelText('icon: close-circle');
-
-    expect(screen.queryByText('0/10')).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('textbox'), {
-      target: { value: 'hello' }
-    });
-    expect(screen.queryByText('0/10')).toBeInTheDocument();
-  });
-
-  test('show allowClear,value is undefined,  TextArea', async () => {
-    render(
-      <AweInput.TextArea
-        allowClear
-        value={undefined}
-        maxLength={10}
-        // showLengthCount
-      />
-    );
-
-    await screen.findByLabelText('icon: close-circle');
-
-    expect(screen.queryByText('0/10')).toBeNull();
   });
 });
