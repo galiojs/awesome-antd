@@ -12,35 +12,15 @@ export class AweInput extends React.PureComponent<AweInputProps> {
   static TextArea = TextArea;
 
   render() {
-    const {
-      suffix,
-      maxLength,
-      showLengthCount,
-      defaultValue,
-      value,
-      ...restProps
-    } = this.props;
-    const extraProps: AweInputProps = {};
+    const { suffix, showLengthCount, ...restProps } = this.props;
 
-    if ('value' in this.props) {
-      extraProps.value = value;
-    }
-    if ('defaultValue' in this.props) {
-      extraProps.defaultValue = defaultValue;
-    }
     return (
-      <LengthCount
-        {...extraProps}
-        maxLength={maxLength}
-        showLengthCount={showLengthCount}
-      >
+      <LengthCount {...this.props}>
         {({ lengthCount, onChange }) => (
           <Input
             {...restProps}
             suffix={showLengthCount ? lengthCount : suffix}
-            maxLength={maxLength}
             onChange={onChange}
-            {...extraProps}
           />
         )}
       </LengthCount>

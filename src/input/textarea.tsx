@@ -12,72 +12,29 @@ export interface TextAreaState {
   lengthCount: string;
 }
 
-export class TextArea extends React.PureComponent<
-  AweTextAreaProps,
-  TextAreaState
-> {
+export class TextArea extends React.PureComponent<AweTextAreaProps, TextAreaState> {
   static defaultProps: Partial<AweTextAreaProps> = {
     showLengthCount: false
   };
 
   render() {
-    const {
-      value,
-      allowClear,
-      showLengthCount,
-      maxLength,
-      className,
-      defaultValue,
-      ...restProps
-    } = this.props;
-    const extraProps: AweTextAreaProps = {};
-    if ('value' in this.props) {
-      extraProps.value = value;
-    }
-    if ('defaultValue' in this.props) {
-      extraProps.defaultValue = defaultValue;
-    }
-    return (
-      <LengthCount
-        {...extraProps}
-        maxLength={maxLength}
-        showLengthCount={showLengthCount}
-      >
-        {({ lengthCount, onChange }) => {
-          if (allowClear) {
-            return (
-              <>
-                <span
-                  className={`ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn ${className ||
-                    ''}`}
-                >
-                  <Input.TextArea
-                    maxLength={maxLength}
-                    value={value}
-                    {...restProps}
-                    onChange={onChange}
-                  />
+    const { allowClear, showLengthCount, className, ...restProps } = this.props;
 
-                  <Icon
-                    type="close-circle"
-                    className="ant-input-textarea-clear-icon"
-                  />
-                </span>
-                {showLengthCount && (
-                  <span style={{ display: 'block', textAlign: 'right' }}>
-                    {lengthCount}
-                  </span>
-                )}
-              </>
-            );
-          }
+    return (
+      <LengthCount {...this.props}>
+        {({ lengthCount, onChange }) => {
           return (
-            <Input.TextArea
-              maxLength={maxLength}
-              value={value}
-              {...restProps}
-              onChange={onChange}
-            />
+            <>
+              <span
+                className={`ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn ${className ||
+                  ''}`}
+              >
+                <Input.TextArea {...restProps} onChange={onChange} />
+
+                <Icon type="close-circle" className="ant-input-textarea-clear-icon" />
+              </span>
+              {showLengthCount && <div style={{ textAlign: 'right' }}>{lengthCount}</div>}
+            </>
           );
         }}
       </LengthCount>
