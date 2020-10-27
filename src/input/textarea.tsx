@@ -1,8 +1,8 @@
-import React from "react";
-import Input, { TextAreaProps } from "antd/lib/input";
-import Icon from "antd/lib/icon";
+import React from 'react';
+import Input, { TextAreaProps } from 'antd/lib/input';
+import Icon from 'antd/lib/icon';
 
-import LengthCount from "./length-count";
+import LengthCount from './length-count';
 
 export interface AweTextAreaProps extends TextAreaProps {
   showLengthCount?: boolean;
@@ -31,10 +31,10 @@ export class TextArea extends React.PureComponent<
       ...restProps
     } = this.props;
     const extraProps: AweTextAreaProps = {};
-    if ("value" in this.props) {
+    if ('value' in this.props) {
       extraProps.value = value;
     }
-    if ("defaultValue" in this.props) {
+    if ('defaultValue' in this.props) {
       extraProps.defaultValue = defaultValue;
     }
     return (
@@ -49,7 +49,7 @@ export class TextArea extends React.PureComponent<
               <>
                 <span
                   className={`ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn ${className ||
-                    ""}`}
+                    ''}`}
                 >
                   <Input.TextArea
                     maxLength={maxLength}
@@ -64,7 +64,7 @@ export class TextArea extends React.PureComponent<
                   />
                 </span>
                 {showLengthCount && (
-                  <span style={{ display: "block", textAlign: "right" }}>
+                  <span style={{ display: 'block', textAlign: 'right' }}>
                     {lengthCount}
                   </span>
                 )}

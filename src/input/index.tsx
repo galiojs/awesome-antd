@@ -1,3 +1,3 @@
-import AweInput from "./input";
+import AweInput from './input';
 
 export default AweInput;

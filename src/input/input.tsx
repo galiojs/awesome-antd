@@ -1,8 +1,8 @@
-import React from "react";
-import Input, { InputProps } from "antd/lib/input";
+import React from 'react';
+import Input, { InputProps } from 'antd/lib/input';
 
-import LengthCount from "./length-count";
-import TextArea from "./textarea";
+import LengthCount from './length-count';
+import TextArea from './textarea';
 
 export interface AweInputProps extends InputProps {
   showLengthCount?: boolean;
@@ -22,10 +22,10 @@ export class AweInput extends React.PureComponent<AweInputProps> {
     } = this.props;
     const extraProps: AweInputProps = {};
 
-    if ("value" in this.props) {
+    if ('value' in this.props) {
       extraProps.value = value;
     }
-    if ("defaultValue" in this.props) {
+    if ('defaultValue' in this.props) {
       extraProps.defaultValue = defaultValue;
     }
     return (

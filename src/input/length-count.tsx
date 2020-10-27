@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export interface LengthCountProps {
   showLengthCount: boolean;
@@ -25,14 +25,14 @@ function getLengthCount(
   maxLength?: number
 ) {
   if (value === null || value === undefined) {
-    return maxLength !== undefined ? `0/${maxLength}` : "0";
+    return maxLength !== undefined ? `0/${maxLength}` : '0';
   }
 
   let text = value;
   if (Array.isArray(value)) {
     text = value.join();
   }
-  if (typeof value == "number") {
+  if (typeof value == 'number') {
     text = value.toString();
   }
   if (maxLength === undefined) {
@@ -50,11 +50,11 @@ export class LengthCount extends React.PureComponent<
   };
 
   state = {
-    lengthCount: "0"
+    lengthCount: '0'
   };
 
   static getDerivedStateFromProps(props: LengthCountProps) {
-    if ("value" in props && props.showLengthCount) {
+    if ('value' in props && props.showLengthCount) {
       return {
         lengthCount: getLengthCount(props.value, props.maxLength)
       };
@@ -64,8 +64,8 @@ export class LengthCount extends React.PureComponent<
 
   componentDidMount() {
     if (
-      "defaultValue" in this.props &&
-      !("value" in this.props) &&
+      'defaultValue' in this.props &&
+      !('value' in this.props) &&
       this.props.showLengthCount
     ) {
       this.setState({
@@ -86,7 +86,7 @@ export class LengthCount extends React.PureComponent<
         lengthCount: getLengthCount(evt.target.value, maxLength)
       });
     }
-    if (typeof onChange !== "function") {
+    if (typeof onChange !== 'function') {
       return;
     }
     onChange(evt);
