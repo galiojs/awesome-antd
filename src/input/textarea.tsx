@@ -13,15 +13,23 @@ export class TextArea extends React.PureComponent<AweTextAreaProps> {
   };
 
   render() {
-    const { showLengthCount, ...restProps } = this.props;
+    const { showLengthCount, style, ...restProps } = this.props;
+    const { width } = style || {};
 
     return (
       <LengthCount {...this.props}>
         {({ lengthCount, onChange }) => {
           return (
             <>
-              <Input.TextArea {...restProps} onChange={onChange} />
-              {showLengthCount && <div style={{ textAlign: 'right' }}>{lengthCount}</div>}
+              <Input.TextArea {...restProps} onChange={onChange} style={style} />
+              {showLengthCount && (
+                <div
+                  className="awe-input-textarea-length-count"
+                  style={{ textAlign: 'right', width }}
+                >
+                  {lengthCount}
+                </div>
+              )}
             </>
           );
         }}
