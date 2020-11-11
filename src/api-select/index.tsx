@@ -1,7 +1,6 @@
 import React from 'react';
 import get from 'lodash.get';
 import debounce from 'lodash.debounce';
-import shallowequal from 'shallowequal';
 import { SelectValue } from 'antd/lib/select';
 
 import { DataService } from './../renderProps/data-service';
@@ -27,11 +26,16 @@ export interface AweApiSelectProps extends AweSelectProps {
    */
   trigger?: 'onDidMount' | 'onFocus' | 'onSearch';
 
-  dataService?: (q?: any) => any;
   optionWithValue?: boolean;
   fieldNames?: FieldNames;
   disabledOptionValues?: string[];
+
+  /**
+   * @deprecated As of release v0.1.8, replaced by {@link #serviceQueries}
+   */
   dataDependencies?: any[];
+  serviceQueries?: any[];
+  dataService?: (...qs: any[]) => any;
 }
 
 const DEFAULT_FIELD_NAMES = {
@@ -46,13 +50,6 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
     fieldNames: DEFAULT_FIELD_NAMES,
     disabledOptionValues: [],
   };
-
-  componentDidUpdate({ dataDependencies: prevDataDeps }: AweApiSelectProps) {
-    const { dataDependencies } = this.props;
-    if (!shallowequal(prevDataDeps, dataDependencies)) {
-      this._attemptToGetData(true);
-    }
-  }
 
   private _dataServiceRef = React.createRef<DataService>();
 
@@ -86,7 +83,7 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
       this._dataServiceRef.current?.getData(forced);
       return;
     }
-    this._dataServiceRef.current?.getDataByQ(q, forced);
+    this._dataServiceRef.current?.getDataByQ([q], forced);
   };
 
   private _focusHandler = () => {
@@ -111,22 +108,32 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
     const {
       requestOnDidMount,
       trigger,
-      dataService,
       fieldNames,
       disabledOptionValues,
+      dataDependencies,
+      serviceQueries = dataDependencies,
+      dataService,
       ...rest
     } = this.props;
 
-    if (process.env.NODE_ENV === 'development' && requestOnDidMount !== undefined) {
-      console.warn(
-        `As of release v0.1.3, "requestOnDidMount" was deprecated and this API will be removed in v1.x. Please use "trigger" instead.`
-      );
+    if (process.env.NODE_ENV === 'development') {
+      if (requestOnDidMount !== undefined) {
+        console.warn(
+          `As of release v0.1.3, "requestOnDidMount" was deprecated and this API will be removed in v1.0.0. Please use "trigger" instead.`
+        );
+      }
+      if (dataDependencies !== undefined) {
+        console.warn(
+          `As of release v0.1.8, "dataDependencies" was deprecated and this API will be removed in v1.0.0. Please use "serviceQueries" instead.`
+        );
+      }
     }
 
     return (
       <DataService
         ref={this._dataServiceRef}
         requestOnDidMount={(requestOnDidMount && trigger === 'onFocus') || trigger === 'onDidMount'}
+        queries={serviceQueries}
         dataService={dataService}
       >
         {({ data = [] }) => (

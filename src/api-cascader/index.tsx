@@ -4,21 +4,22 @@ import omit from 'lodash.omit';
 import { DataService } from './../renderProps/data-service';
 import AweCascader, { AweCascaderProps, CascaderOptionType } from './../cascader';
 
-export interface AwdApiCascaderProps extends Omit<AweCascaderProps, 'options' | 'loadData'> {
+export interface AweApiCascaderProps extends Omit<AweCascaderProps, 'options' | 'loadData'> {
   /**
    * Defaults to `onFocus`
    */
   trigger: 'onDidMount' | 'onFocus';
 
-  dataService(): Promise<CascaderOptionType[]>;
+  serviceQueries?: any[];
+  dataService(...queries: any[]): Promise<CascaderOptionType[]>;
   childDataService?(
     targetOption?: CascaderOptionType,
     selectedOptions?: CascaderOptionType[]
   ): Promise<CascaderOptionType[]>;
 }
 
-export class AweApiCascader extends React.PureComponent<AwdApiCascaderProps> {
-  static defaultProps: Partial<AwdApiCascaderProps> = {
+export class AweApiCascader extends React.PureComponent<AweApiCascaderProps> {
+  static defaultProps: Partial<AweApiCascaderProps> = {
     trigger: 'onFocus',
   };
 
@@ -51,13 +52,19 @@ export class AweApiCascader extends React.PureComponent<AwdApiCascaderProps> {
   };
 
   render() {
-    const { trigger, dataService } = this.props;
-    const props = omit(this.props, ['trigger', 'dataService', 'childDataService']);
+    const { trigger, serviceQueries, dataService } = this.props;
+    const props = omit(this.props, [
+      'trigger',
+      'serviceQueries',
+      'dataService',
+      'childDataService',
+    ]);
 
     return (
       <DataService
         ref={this._dataServiceRef}
         requestOnDidMount={trigger === 'onDidMount'}
+        queries={serviceQueries}
         dataService={dataService}
       >
         {({ data = [] }) => (

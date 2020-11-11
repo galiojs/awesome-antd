@@ -1,10 +1,14 @@
 import React from 'react';
 import omit from 'lodash.omit';
+import shallowequal from 'shallowequal';
+
+export type DataUpdatedCallback = (data: any) => void;
 
 export interface DataServiceProps {
   requestOnDidMount?: boolean;
-  dataService: (q?: any) => any;
-  onDataUpdated?: (data: any) => void;
+  queries?: any[];
+  dataService: (...queries: any[]) => any;
+  onDataUpdated?: DataUpdatedCallback;
   children: (
     provided: { data: any; requesting?: boolean },
     transmittedProps?: any
@@ -36,13 +40,23 @@ export class DataService extends React.PureComponent<DataServiceProps, DataServi
   componentDidMount() {
     const { requestOnDidMount } = this.props;
     if (requestOnDidMount) {
-      this._tryToGetData();
+      this._attemptToGetData();
     }
   }
 
-  private _getData = async (q?: any, callback?: (data: any) => void) => {
-    const query = typeof q != 'function' ? q : null;
-    const cb = typeof q == 'function' ? q : callback;
+  componentDidUpdate({ queries: prevQs }: DataServiceProps) {
+    const { queries } = this.props;
+    if (Array.isArray(prevQs) && Array.isArray(queries) && !shallowequal(prevQs, queries)) {
+      this._getData(queries);
+    }
+  }
+
+  private _getData = async (
+    qs: any[] | DataUpdatedCallback = [],
+    callback?: DataUpdatedCallback
+  ) => {
+    const queries = typeof qs != 'function' ? qs : [];
+    const cb = typeof qs == 'function' ? qs : callback;
     const { dataService } = this.props;
     if (typeof dataService !== 'function') {
       console.error('[DataService]: `dataService` expected.');
@@ -51,7 +65,7 @@ export class DataService extends React.PureComponent<DataServiceProps, DataServi
     this._lastRequestId += 1;
     const requestId = this._lastRequestId;
     this.setState({ requesting: true });
-    const data = await dataService(query);
+    const data = await dataService(...queries);
 
     // There is another request that has not been fulfilled.
     // We should skip this result.
@@ -73,27 +87,27 @@ export class DataService extends React.PureComponent<DataServiceProps, DataServi
     return !this.state.requesting && this.state.data === undefined;
   };
 
-  private _tryToGetData = () => {
+  private _attemptToGetData = () => {
     if (!this._shouldGetData()) {
       return;
     }
-    this._getData();
+    this._getData(this.props.queries);
   };
 
-  getData = (forced = false, callback?: (data: any) => void) => {
+  getData = (forced = false, callback?: DataUpdatedCallback) => {
     if (!forced) {
-      this._tryToGetData();
+      this._attemptToGetData();
       return;
     }
-    this._getData(callback);
+    this._getData(this.props.queries, callback);
   };
 
-  getDataByQ = (q: any, forced = false, callback?: (data: any) => void) => {
+  getDataByQ = (qs: any[], forced = false, callback?: DataUpdatedCallback) => {
     if (!forced) {
-      this._tryToGetData();
+      this._attemptToGetData();
       return;
     }
-    this._getData(q, callback);
+    this._getData(qs, callback);
   };
 
   setData = (getNewData: (data: any) => any, callback?: () => void) => {
