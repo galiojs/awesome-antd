@@ -5,7 +5,7 @@
 ## 使用方式
 
 ```jsx
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { AweApiCascader } from '@galiojs/awesome-antd';
 
 export default function Demo() {
