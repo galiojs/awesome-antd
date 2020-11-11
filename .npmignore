@@ -3,6 +3,7 @@
 /scripts
 /src
 /.vscode
+/.github
 
 .gitignore
 .npmignore
