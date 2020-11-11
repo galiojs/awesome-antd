@@ -4,7 +4,7 @@ import omit from 'lodash.omit';
 import { DataService } from './../renderProps/data-service';
 import AweCascader, { AweCascaderProps, CascaderOptionType } from './../cascader';
 
-export interface AwdApiCascaderProps extends Omit<AweCascaderProps, 'options' | 'loadData'> {
+export interface AweApiCascaderProps extends Omit<AweCascaderProps, 'options' | 'loadData'> {
   /**
    * Defaults to `onFocus`
    */
@@ -18,8 +18,8 @@ export interface AwdApiCascaderProps extends Omit<AweCascaderProps, 'options' | 
   ): Promise<CascaderOptionType[]>;
 }
 
-export class AweApiCascader extends React.PureComponent<AwdApiCascaderProps> {
-  static defaultProps: Partial<AwdApiCascaderProps> = {
+export class AweApiCascader extends React.PureComponent<AweApiCascaderProps> {
+  static defaultProps: Partial<AweApiCascaderProps> = {
     trigger: 'onFocus',
   };
 
