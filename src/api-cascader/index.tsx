@@ -10,7 +10,8 @@ export interface AwdApiCascaderProps extends Omit<AweCascaderProps, 'options' | 
    */
   trigger: 'onDidMount' | 'onFocus';
 
-  dataService(): Promise<CascaderOptionType[]>;
+  serviceQueries?: any[];
+  dataService(...queries: any[]): Promise<CascaderOptionType[]>;
   childDataService?(
     targetOption?: CascaderOptionType,
     selectedOptions?: CascaderOptionType[]
@@ -51,13 +52,19 @@ export class AweApiCascader extends React.PureComponent<AwdApiCascaderProps> {
   };
 
   render() {
-    const { trigger, dataService } = this.props;
-    const props = omit(this.props, ['trigger', 'dataService', 'childDataService']);
+    const { trigger, serviceQueries, dataService } = this.props;
+    const props = omit(this.props, [
+      'trigger',
+      'serviceQueries',
+      'dataService',
+      'childDataService',
+    ]);
 
     return (
       <DataService
         ref={this._dataServiceRef}
         requestOnDidMount={trigger === 'onDidMount'}
+        queries={serviceQueries}
         dataService={dataService}
       >
         {({ data = [] }) => (

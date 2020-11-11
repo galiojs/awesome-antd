@@ -90,12 +90,34 @@ describe('Testing <AweApiSelect />', () => {
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.type(screen.getByRole('textbox'), 'hello');
 
-    await screen.findAllByText('Hello');
+    await screen.findByText('Hello');
     expect(screen.queryByText('React')).toBeNull();
 
     await userEvent.clear(screen.getByRole('textbox'));
 
-    await screen.findAllByText('Hello');
-    await screen.findAllByText('React');
+    await screen.findByText('Hello');
+    await screen.findByText('React');
+  });
+
+  test('Re-fetches options depends on service queries.', async () => {
+    mockedAxios.get.mockImplementation((__, { params: { keyword } }) => {
+      return Promise.resolve({
+        data: options.filter(({ label }) =>
+          String(label).toLowerCase().includes(String(keyword).toLowerCase())
+        ),
+      });
+    });
+
+    const { rerender } = render(
+      <AweApiSelect serviceQueries={['hello']} dataService={searchDataService} />
+    );
+
+    await userEvent.click(screen.getByRole('combobox'));
+    await screen.findByText('Hello');
+    expect(screen.queryByText('React')).toBeNull();
+
+    rerender(<AweApiSelect serviceQueries={['react']} dataService={searchDataService} />);
+    await screen.findByText('React');
+    expect(screen.queryByText('Hello')).toBeNull();
   });
 });
