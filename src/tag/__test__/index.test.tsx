@@ -12,10 +12,10 @@ describe('Testing <AweTagGroup />', () => {
       return (
         <>
           <span>{checkedValues.join(',')}</span>
-          <AweTag.AweTagGroup
+          <AweTag.Group
             options={[
-              { label: 'A1-01', key: 'A1-01' },
-              { label: 'A1-02', key: 'A1-02' }
+              { label: 'A1-01', value: 'A1-01' },
+              { label: 'A1-02', value: 'A1-02' }
             ]}
             value={checkedValues}
             onChange={setCheckedValues}
