@@ -17,7 +17,7 @@ describe('Testing <AweEditableTable />', () => {
     expect(screen.getByText(NAME_REQUIRED_ERROR_MESSAGE)).toBeInTheDocument();
     expect(screen.getByText(AGE_REQUIRED_ERROR_MESSAGE)).toBeInTheDocument();
 
-    await userEvent.type(screen.getByRole('textbox'), 'Jerry');
+    await userEvent.type(screen.getByRole('textbox', { name: 'field: name' }), 'Jerry');
     await userEvent.type(screen.getByRole('spinbutton'), '29');
 
     await userEvent.click(saveBtn);

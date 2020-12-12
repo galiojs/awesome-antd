@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Input, InputNumber, Icon, Select } from 'antd';
 import 'antd/dist/antd.min.css';
 
 import { createEditableTable, AweColumnProps } from './../../table';
+import { generateGetRowSpan } from './../../table/utils';
 
 interface Record {
   key: string;
@@ -13,12 +14,19 @@ interface Record {
 }
 
 interface GetColumnsOpts {
-  addRow(rowData: Record): void;
+  addRow(rowData: Record, insertIdx?: number): void;
   getRowSpan(record: Record, idx: number): number;
 }
 
+export interface EditableTableProps {
+  defaultData?: Record[];
+  defaultEditingRowKey?: string | null;
+}
+
+const generateRowKey = () => 'row-' + Math.random();
+
 const getInitialRowData = (mergeRowsKey?: string): Record => {
-  const key = 'row-' + Math.random();
+  const key = generateRowKey();
 
   return {
     key,
@@ -32,12 +40,14 @@ const getInitialRowData = (mergeRowsKey?: string): Record => {
 export const NAME_REQUIRED_ERROR_MESSAGE = 'name is required';
 export const AGE_REQUIRED_ERROR_MESSAGE = 'age is required';
 
+const AweEditableTable = createEditableTable<Record, Omit<Record, 'key'>>();
+
 const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Record>[] => [
   {
     title: 'Name',
     dataIndex: 'name',
     editable: true,
-    editingCtrl: <Input style={{ width: 200 }} />,
+    editingCtrl: <Input aria-label="field: name" style={{ width: 200 }} />,
     decorateOptions: {
       rules: [{ required: true, message: NAME_REQUIRED_ERROR_MESSAGE }],
     },
@@ -51,12 +61,6 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
               type="plus-circle"
               onClick={() => {
                 addRow(getInitialRowData());
-                // addRow({
-                //   ...record,
-                //   key: 'row-' + Math.random(),
-                //   mergeRowsKey: record.mergeRowsKey,
-                //   child: undefined,
-                // });
               }}
             />
             {name}
@@ -116,19 +120,22 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
     editingCtrl: <Input style={{ width: 200 }} placeholder="Child name" />,
     render(child, record, idx) {
       const rowSpan = getRowSpan(record, idx);
-      if (rowSpan >= 1) {
+      if (rowSpan >= 1 && child) {
         return (
           <span>
             <Icon
               style={{ marginRight: 8 }}
               type="plus-circle"
               onClick={() => {
-                addRow({
-                  ...record,
-                  key: 'row-' + Math.random(),
-                  mergeRowsKey: record.mergeRowsKey,
-                  child: undefined,
-                });
+                addRow(
+                  {
+                    ...record,
+                    key: generateRowKey(),
+                    mergeRowsKey: record.mergeRowsKey,
+                    child: undefined,
+                  },
+                  idx
+                );
               }}
             />
             {child}
@@ -138,49 +145,31 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
 
       return child;
     },
-    // editingCtrlExtraRender: (editingCtrl, record) => (
-    //   <span>
-    //     {editingCtrl}
-    // <Icon
-    //   style={{ marginLeft: 8 }}
-    //   type="plus-circle"
-    //   onClick={() => {
-    //     addRow({ ...record, mergeRowsKey: record.mergeRowsKey, child: undefined });
-    //   }}
-    // />
-    //   </span>
-    // ),
   },
 ];
 
-const AweEditableTable = createEditableTable<Record, Omit<Record, 'key'>>();
+const EditableTable = ({
+  defaultData = [getInitialRowData()],
+  defaultEditingRowKey,
+}: EditableTableProps) => {
+  const [data, setData] = useState<Record[]>(defaultData);
+  const [editingRowKey, setEditingRowKey] = useState<string | null>(
+    defaultEditingRowKey === undefined ? defaultData[0].key : defaultEditingRowKey
+  );
+  const [deleteByCancel, setDeleteByCancel] = useState(false);
 
-const EditableTable = () => {
-  const [data, setData] = React.useState([getInitialRowData()]);
-  const [editingRowKey, setEditingRowKey] = React.useState<string | null>(data[0].key);
+  const addRow = (rowData: Record, insertIdx = 0) => {
+    setData((prevData) => {
+      const nextData = [...prevData];
+      nextData.splice(insertIdx, 0, rowData);
 
-  const addRow = (rowData: Record) => {
-    setData((prevData) => [rowData, ...prevData]);
+      return nextData;
+    });
     setEditingRowKey(rowData.key);
+    setDeleteByCancel(true);
   };
 
-  const getRowSpan = (record: Record, idx: number) => {
-    if (data[idx - 1]?.mergeRowsKey === record.mergeRowsKey) {
-      return 0;
-    }
-
-    let span = 1;
-    const dataSlice = data.slice(idx + 1);
-    for (let index = 0; index < dataSlice.length; index++) {
-      const element = dataSlice[index];
-      if (element.mergeRowsKey !== record.mergeRowsKey) {
-        break;
-      }
-      span++;
-    }
-
-    return span;
-  };
+  const getRowSpan = useCallback(generateGetRowSpan(data), [data]);
 
   return (
     <AweEditableTable
@@ -191,11 +180,23 @@ const EditableTable = () => {
         setEditingRowKey(rowKey);
       }}
       onCancel={() => {
+        if (deleteByCancel) {
+          setData((prevData) => {
+            const nextData = [...prevData];
+            const idx = nextData.findIndex((record) => record.key === editingRowKey);
+            if (idx > -1) {
+              nextData.splice(idx, 1);
+            }
+
+            return nextData;
+          });
+        }
         setEditingRowKey(null);
       }}
       onSave={(__, data) => {
         setData(data);
         setEditingRowKey(null);
+        setDeleteByCancel(false);
       }}
       onDelete={(rowKey, data) => {
         setData(data);

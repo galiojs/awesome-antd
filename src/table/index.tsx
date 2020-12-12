@@ -48,9 +48,11 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
   AweTableProps<T, V>,
   AweTableState
 > {
+  static UNSET_EDITING_ROW_KEY = null;
+
   static defaultProps: Partial<AweTableProps<any, any>> = {
     rowKey: 'key',
-    editingRowKey: null,
+    editingRowKey: AweEditableTable.UNSET_EDITING_ROW_KEY,
     pagination: false,
     onSave: () => {},
     onEdit: () => {},
@@ -58,9 +60,9 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
     onDelete: () => {},
   };
 
-  static UNSET_EDITING_ROW_KEY = null;
-
-  private _canCancelSign = false;
+  private _canCancelSign =
+    this.props.dataSource.length > 1 &&
+    this.props.editingRowKey !== AweEditableTable.UNSET_EDITING_ROW_KEY;
 
   state: AweTableState = {};
 
@@ -71,8 +73,15 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
     return key;
   };
 
+  private _canCancel = () => {
+    return this._canCancelSign;
+  };
+
   private _canDelete = () => {
-    return this.props.dataSource.length <= 1;
+    return (
+      this.props.editingRowKey === AweEditableTable.UNSET_EDITING_ROW_KEY &&
+      this.props.dataSource.length > 1
+    );
   };
 
   private _isEditing = (record: T, rowIdx: number) => {
@@ -88,7 +97,7 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
         return;
       }
       onSave(this._getRowKey(record, idx), this._getUpdatedData(record, idx, valueMap));
-      this._canCancelSign = false;
+      this._canCancelSign = true;
     });
   };
 
@@ -120,18 +129,7 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
   };
 
   private _cancelHandler = () => {
-    const { form, onCancel } = this.props;
-    if (this._canCancelSign) {
-      onCancel(AweEditableTable.UNSET_EDITING_ROW_KEY);
-      this._canCancelSign = false;
-      return;
-    }
-    form.validateFields((errorMap) => {
-      if (errorMap) {
-        return;
-      }
-      onCancel(AweEditableTable.UNSET_EDITING_ROW_KEY);
-    });
+    this.props.onCancel(AweEditableTable.UNSET_EDITING_ROW_KEY);
   };
 
   private _editHandler = (record: T, idx: number) => {
@@ -171,9 +169,10 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
       <FormContext.Provider value={form}>
         <LocaleReceiver componentName="EditableTable" defaultLocale={defaultLocale.EditableTable}>
           {(locale: EditableTableLocale, localeCode: string) => {
-            const defaultActionsColumn = getDefaultActionsColumn(
+            const defaultActionsColumn = getDefaultActionsColumn<T>(
               {
                 editingRowKey,
+                canCancel: this._canCancel,
                 canDelete: this._canDelete,
                 isEditing: this._isEditing,
                 onSave: this._saveHandler,
@@ -208,23 +207,30 @@ export default Table;
 
 export const FormContext = React.createContext<WrappedFormUtils | undefined>(undefined);
 
-type GetDefaultActionsColumn = <T>(
-  opts: {
-    editingRowKey: string | null;
-    canDelete(record: T, idx: number): boolean;
-    isEditing(record: T, idx: number): boolean;
-    onSave(record: T, idx: number): void;
-    onCancel(): void;
-    onEdit(record: T, idx: number): void;
-    onDelete(record: T, idx: number): void;
-  },
-  locale: EditableTableLocale & { localeCode: string }
-) => AweColumnProps<T>;
+interface GetDefaultActionsColumnOpts<T> {
+  editingRowKey: string | null;
+  canCancel(record: T, idx: number): boolean;
+  canDelete(record: T, idx: number): boolean;
+  isEditing(record: T, idx: number): boolean;
+  onSave(record: T, idx: number): void;
+  onCancel(): void;
+  onEdit(record: T, idx: number): void;
+  onDelete(record: T, idx: number): void;
+}
 
-const getDefaultActionsColumn: GetDefaultActionsColumn = (
-  { editingRowKey, canDelete, isEditing, onSave, onCancel, onEdit, onDelete },
-  locale
-) => ({
+const getDefaultActionsColumn = <T extends object>(
+  {
+    editingRowKey,
+    canCancel,
+    canDelete,
+    isEditing,
+    onSave,
+    onCancel,
+    onEdit,
+    onDelete,
+  }: GetDefaultActionsColumnOpts<T>,
+  locale: EditableTableLocale & { localeCode: string }
+): AweColumnProps<T> => ({
   title: locale.actionsColumnTitle,
   key: '__awe-table-default-actions-column',
   width: locale.localeCode === 'zh_CN' ? 100 : 120,
@@ -246,6 +252,7 @@ const getDefaultActionsColumn: GetDefaultActionsColumn = (
         <AweButton
           aria-label="button: cancel"
           type="link"
+          disabled={!canCancel(record, idx)}
           onClick={() => {
             onCancel();
           }}
@@ -269,7 +276,7 @@ const getDefaultActionsColumn: GetDefaultActionsColumn = (
         <AweButton
           aria-label="button: delete"
           type="link"
-          disabled={canDelete(record, idx)}
+          disabled={!canDelete(record, idx)}
           onClick={() => {
             onDelete(record, idx);
           }}
