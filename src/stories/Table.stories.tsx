@@ -10,8 +10,8 @@ export default {
 
 const Template: Story<EditableTableProps> = (args) => <EditableTable {...args} />;
 
-export const UserTable = Template.bind({});
-UserTable.args = {
+export const FamilyTreeTable = Template.bind({});
+FamilyTreeTable.args = {
   defaultData: [
     {
       key: 'row-0.7680511899736875',
