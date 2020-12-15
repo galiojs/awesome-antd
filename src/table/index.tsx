@@ -34,6 +34,7 @@ export interface AweTableProps<T, V> extends TableProps<T> {
   columns: AweColumnProps<T>[];
   dataSource: T[];
   editingRowKey: string | null;
+  canDelete(record: T, idx: number, hasEditingRow: boolean): boolean;
   onSave(editingRowKey: string, data: T[]): void;
   onEdit(rowKey: string): void;
   onCancel(unsetRowKey: typeof AweEditableTable.UNSET_EDITING_ROW_KEY): void;
@@ -42,9 +43,7 @@ export interface AweTableProps<T, V> extends TableProps<T> {
 
 export interface AweTableState {}
 
-type BaseRecord = { [stringProp: string]: any; [numberProp: number]: any };
-
-export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends React.PureComponent<
+export class AweEditableTable<T extends object, V = Partial<T>> extends React.PureComponent<
   AweTableProps<T, V>,
   AweTableState
 > {
@@ -54,34 +53,29 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
     rowKey: 'key',
     editingRowKey: AweEditableTable.UNSET_EDITING_ROW_KEY,
     pagination: false,
+    canDelete: (_record, _idx, hasEditingRow) => hasEditingRow,
     onSave: () => {},
     onEdit: () => {},
     onCancel: () => {},
     onDelete: () => {},
   };
 
-  private _canCancelSign =
-    this.props.dataSource.length > 1 &&
-    this.props.editingRowKey !== AweEditableTable.UNSET_EDITING_ROW_KEY;
-
   state: AweTableState = {};
 
   private _getRowKey = (record: T, rowIdx: number) => {
     const { rowKey } = this.props;
-    const key: string = typeof rowKey == 'string' ? record[rowKey] : rowKey(record, rowIdx);
+    const key: string =
+      typeof rowKey == 'string' ? (record as any)[rowKey] : rowKey(record, rowIdx);
 
     return key;
   };
 
-  private _canCancel = () => {
-    return this._canCancelSign;
+  private _hasEditingRow = () => {
+    return this.props.editingRowKey === AweEditableTable.UNSET_EDITING_ROW_KEY;
   };
 
-  private _canDelete = () => {
-    return (
-      this.props.editingRowKey === AweEditableTable.UNSET_EDITING_ROW_KEY &&
-      this.props.dataSource.length > 1
-    );
+  private _canDelete = (record: T, idx: number) => {
+    return this.props.canDelete(record, idx, this._hasEditingRow());
   };
 
   private _isEditing = (record: T, rowIdx: number) => {
@@ -97,7 +91,6 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
         return;
       }
       onSave(this._getRowKey(record, idx), this._getUpdatedData(record, idx, valueMap));
-      this._canCancelSign = true;
     });
   };
 
@@ -133,7 +126,6 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
   };
 
   private _editHandler = (record: T, idx: number) => {
-    this._canCancelSign = true;
     this.props.onEdit(this._getRowKey(record, idx));
   };
 
@@ -157,7 +149,7 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
             id: (editingId || (clmn.key as string) || clmn.dataIndex)!,
             editingCtrl: editingCtrl as React.ReactElement,
             decorateOptions: {
-              initialValue: record[(clmn.key || clmn.dataIndex)!],
+              initialValue: (record as any)[(clmn.key || clmn.dataIndex)!],
               ...decorateOptions,
             },
           }),
@@ -172,7 +164,6 @@ export class AweEditableTable<T extends BaseRecord, V = Partial<T>> extends Reac
             const defaultActionsColumn = getDefaultActionsColumn<T>(
               {
                 editingRowKey,
-                canCancel: this._canCancel,
                 canDelete: this._canDelete,
                 isEditing: this._isEditing,
                 onSave: this._saveHandler,
@@ -209,7 +200,6 @@ export const FormContext = React.createContext<WrappedFormUtils | undefined>(und
 
 interface GetDefaultActionsColumnOpts<T> {
   editingRowKey: string | null;
-  canCancel(record: T, idx: number): boolean;
   canDelete(record: T, idx: number): boolean;
   isEditing(record: T, idx: number): boolean;
   onSave(record: T, idx: number): void;
@@ -221,7 +211,6 @@ interface GetDefaultActionsColumnOpts<T> {
 const getDefaultActionsColumn = <T extends object>(
   {
     editingRowKey,
-    canCancel,
     canDelete,
     isEditing,
     onSave,
@@ -252,7 +241,6 @@ const getDefaultActionsColumn = <T extends object>(
         <AweButton
           aria-label="button: cancel"
           type="link"
-          disabled={!canCancel(record, idx)}
           onClick={() => {
             onCancel();
           }}
