@@ -87,7 +87,7 @@
     "compile": "BABEL_ENV=production gulp compile",
     "prepublishOnly": "npm run test -- --watchAll=false && npm run compile",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook -o docs"
   },
   "eslintConfig": {
     "extends": "react-app"
