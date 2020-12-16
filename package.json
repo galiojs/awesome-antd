@@ -1,6 +1,6 @@
 {
   "name": "@galiojs/awesome-antd",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "main": "es/index.js",
   "license": "MIT",
   "dependencies": {
@@ -84,8 +84,8 @@
   },
   "scripts": {
     "test": "node scripts/test.js",
+    "test:no-watch": "npm test -- --watchAll=false",
     "compile": "BABEL_ENV=production gulp compile",
-    "prepublishOnly": "npm run test -- --watchAll=false && npm run compile",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o docs"
   },

@@ -43,5 +43,16 @@ describe('Testing <AweEditableTable />', () => {
     editBtns.forEach((editBtn) => {
       expect(editBtn).toHaveAttribute('disabled');
     });
+
+    const deleteBtns = screen.getAllByLabelText('button: delete');
+    deleteBtns.forEach((deleteBtn) => {
+      expect(deleteBtn).toHaveAttribute('disabled');
+    });
+
+    await userEvent.click(screen.getByLabelText('button: cancel'));
+
+    await userEvent.click(screen.getByLabelText('button: delete'));
+
+    expect(screen.getByText('No Data')).toBeInTheDocument();
   });
 });
