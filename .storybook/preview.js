@@ -1,4 +1,9 @@
 export const parameters = {
+  options: {
+    storySort: {
+      order: ['Intro', 'Internationalization'],
+    },
+  },
   actions: { argTypesRegex: '^on[A-Z].*' },
 };
 
