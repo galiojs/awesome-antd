@@ -1,0 +1,174 @@
+import { Canvas, Story, Meta, ArgsTable, Source } from '@storybook/addon-docs/blocks';
+
+import EditableTable from './EditableTable';
+import code from '!!raw-loader!./EditableTable/index.tsx';
+import { createEditableTable } from './../table';
+
+<Meta title="Example/EditableTable" component={EditableTable} />
+
+<!-- For APIs auto-generation -->
+
+export const BaseEditableTable = createEditableTable();
+
+export const Template = (args) => <EditableTable {...args} />;
+
+# EditableTable
+
+A table with predefined family members data.
+
+<Canvas mdxSource={code}>
+  <Story
+    name="Family Tree Table"
+    args={{
+      defaultData: [
+        {
+          key: 'row-0.7680511899736875',
+          mergeRowsKey: 'row-0.7680511899736875',
+          name: 'Emma',
+          age: 22,
+          child: 'Fruit',
+          gender: 'F',
+        },
+        {
+          key: 'row-0.8981918115495107',
+          mergeRowsKey: 'row-0.3092834939272744',
+          name: 'Jerry',
+          age: 30,
+          child: 'Alice',
+          gender: 'M',
+        },
+        {
+          key: 'row-0.3092834939272744',
+          mergeRowsKey: 'row-0.3092834939272744',
+          name: 'Jerry',
+          age: 30,
+          child: 'Fruit',
+          gender: 'M',
+        },
+      ],
+      defaultEditingRowKey: 'row-0.7680511899736875',
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+</Canvas>
+
+## Props
+
+<ArgsTable of={BaseEditableTable} />
+
+## Concepts
+
+### Controlled Component
+
+`EditableTable` is a fully controlled component by design. It uses `dataSource` prop to render rows, and fires `save, cancel, delete` events to notify parent component to update data.
+
+### One Editing Row at once
+
+only one row can be `editing` state at once because:
+
+- In a real-world, a user can't deal with multiple rows simultaneously.
+- To avoid complex logic implementations.
+
+<details>
+  <summary>简体中文</summary>
+
+## 概念
+
+### 受控组件
+
+`EditableTable` 被我们设计成一个受控组件。 它通过 `dataSource` API 来指定渲染用的数据源，在用户操作时触发 `save, cancel, delete` 事件来通知上层组件更新数据。
+
+### 同一时间只允许编辑一行数据
+
+因为：
+
+- 在实际情况中，用户是无法同时编辑多行数据的。
+- 为了避免增加复杂的实现逻辑。
+
+</details>
+
+## Usage
+
+First of all, we didn't export an `EditableTable` component, instead, we provide a function to create it called `createEditableTable`. You can import the function then do it yourself.
+
+<details>
+  <summary>简体中文</summary>
+
+## 使用
+
+首先，我们没有直接导出 `EditableTable` 组件，而是提供了一个 `createEditableTable` 方法用于创建它。你可以引入这个方法自己创建它。
+
+</details>
+
+```jsx
+import { createEditableTable } from '@galiojs/awesome-antd';
+
+const EditableTable = createEditableTable();
+```
+
+This function accepts an argument called `options` which you can found docs [here](<https://3x.ant.design/components/form-cn/#Form.create(options)>). But in most cases, you can omit `options`.
+
+Then, use the created `EditableTable` component.
+
+<details>
+  <summary>简体中文</summary>
+
+## 使用
+
+此方法接收一个 `options` 参数，文档可参考[这里](<https://3x.ant.design/components/form-cn/#Form.create(options)>)。不过大多数情况下，你不需要传入此参数。
+
+</details>
+
+```jsx
+<EditableTable
+  columns={columns}
+  dataSource={data}
+  editingRowKey={editingRowKey}
+  onSave={saveHandler}
+  onCancel={cancelHandler}
+  onEdit={editHandler}
+  onDelete={deleteHandler}
+/>
+```
+
+Here, you must give `EditableTable` a `dataSource` prop, and update your `data` while `save, cancel, delete` events fired. Also, you must provide an `editingRowKey` prop, this prop indicates which row is being `editing` state, and update it while `cancel, edit` events fired.
+
+### How to merge rows?
+
+You should implement it yourself, and we provided you a util function(`generateGetRowSpan`) to help you get through this.
+
+<details>
+  <summary>简体中文</summary>
+
+除了实现数据源的受控外，你还需要传入一个 `editingRowKey` 属性，这个属性用来指定处于编辑状态的行数据，并且你需要监听 `cancel, edit` 事件来更新这个属性。
+
+### 如何合并行？
+
+你需要自己实现合并行的逻辑代码，我们也提供了一个工具方法（`generateGetRowSpan`）可以帮助你实现合并行的逻辑。
+
+</details>
+
+```jsx
+import { generateGetRowSpan } from '@galiojs/awesome-antd/es/table/utils';
+
+const getRowSpan = generateGetRowSpan(data);
+const rowSpan = getRowSpan(rowData, rowIndex);
+```
+
+By default, this function expects every row data has a property `mergeRowsKey`, and continuous rows that have the same `mergeRowsKey` will be considered merged into one row. Only the 1st-row data will be rendered if cells were merged.
+
+If your row data has another property to use to merge rows, you can specify it like this:
+
+<details>
+  <summary>简体中文</summary>
+
+默认情况下，这个方法期望每行数据中都存在一个属性：`mergeRowsKey`，连续的多行数据中具备相同 `mergeRowsKey` 属性值时，这些行将被合并成一行，被合并的单元格将会使用第一行数据渲染。
+
+如果你期望使用行数据中的其他属性来合并行，你可以这么指定：
+
+</details>
+
+```jsx
+const getRowSpan = generateGetRowSpan(data, { mergeProp: 'some-prop-name' });
+```

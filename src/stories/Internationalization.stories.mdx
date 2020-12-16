@@ -1,0 +1,48 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Internationalization" />
+
+# Internationalization
+
+The default language is English(as same as [Ant Design: Internationalization](https://3x.ant.design/docs/react/i18n)).
+
+## Use `zh-CN`
+
+We only covered `zh-CN` locales for now. So, if you want to use Chinese(Simplified) as the default language, you can import the locale code like so
+
+<details>
+  <summary>简体中文</summary>
+
+# 国际化
+
+默认语言是英语，和 [Ant Design: Internationalization](https://3x.ant.design/docs/react/i18n) 一样。
+
+## 使用 `zh-CN`
+
+我们现在只提供了中文的文案。所以，如果你想使用简体中文作为默认语言，你可以这么做：
+
+</details>
+
+```jsx
+import { ConfigProvider } from 'antd';
+import zhCN from '@galiojs/awesome-antd/es/locale/zh_CN';
+
+const App = () => (
+  <ConfigProvider locale={zhCN}>
+    <Root />
+  </ConfigProvider>
+);
+```
+
+> Notes
+
+> Because we imported antd `zh-CN` locales internally, and merged into our `zh-CN` locales, so you no longer import antd `zh-CN` locales.
+
+<details>
+  <summary>简体中文</summary>
+
+> 备注
+
+> 因为我们再内部已经引入了 antd `zh-CN` 的文案，并且和我们的 `zh-CN` 文案做了合并，所以你不再需要自行引入 antd `zh-CN` 文案了。
+
+</details>
