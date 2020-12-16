@@ -32,4 +32,5 @@ export class AweTagGroup extends React.PureComponent<Group> {
     ));
   }
 }
+
 export default AweTagGroup;
