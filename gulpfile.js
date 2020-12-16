@@ -18,7 +18,9 @@ async function clean() {
 }
 
 function js() {
-  const tsResult = gulp.src(['src/**/*.tsx', '!src/**/__test__/*.test.tsx']).pipe(tsProject());
+  const tsResult = gulp
+    .src(['src/**/*.tsx', '!src/**/__test__/*.test.tsx', '!src/stories/**/*'])
+    .pipe(tsProject());
 
   return merge2([
     tsResult.dts.pipe(gulp.dest('es')),

@@ -4,6 +4,7 @@
 /src
 /.vscode
 /.github
+/.storybook
 
 .gitignore
 .npmignore
