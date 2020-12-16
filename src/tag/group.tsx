@@ -21,6 +21,7 @@ export class AweTagGroup extends React.PureComponent<Group> {
 
   render() {
     const { options, value } = this.props;
+
     return options.map(item => (
       <Tag.CheckableTag
         key={item.value}
