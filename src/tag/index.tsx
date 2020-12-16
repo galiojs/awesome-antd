@@ -12,4 +12,5 @@ export class AweTag extends React.PureComponent<TagProps,CheckableTagProps> {
     return <Tag {...this.props} />;
   }
 }
+
 export default AweTag;
