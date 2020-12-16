@@ -1,5 +1,7 @@
+import zhCN from 'antd/lib/locale/zh_CN';
+
 export default {
-  locale: 'zh-cn',
+  ...zhCN,
   EditableTable: {
     actionsColumnTitle: '操作',
     saveBtn: '保存',
