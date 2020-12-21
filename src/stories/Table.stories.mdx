@@ -57,6 +57,16 @@ A table with predefined family members data.
 
 <ArgsTable of={BaseEditableTable} />
 
+### AweColumnProps
+
+| Name               | Description                                      | Default |
+| ------------------ | ------------------------------------------------ | ------- |
+| editable           | boolean                                          | false   |
+| editingId          | string                                           | -       |
+| editingCtrl        | React.ReactElement                               | -       |
+| decorateOptions    | GetDecorateOptions                               | -       |
+| getDecorateOptions | (record: T, index: number) => GetDecorateOptions | -       |
+
 ## Concepts
 
 ### Controlled Component
@@ -171,4 +181,49 @@ If your row data has another property to use to merge rows, you can specify it l
 
 ```jsx
 const getRowSpan = generateGetRowSpan(data, { mergeProp: 'some-prop-name' });
+```
+
+### How to validate based on the other form items?
+
+Use `Customized Validation Rules` to solve this edge case. A `validator` function provided the 4th param called `source` that includes all the field values.
+
+<details>
+  <summary>简体中文</summary>
+
+### 如何基于其他表单项来执行表单项校验？
+
+使用 `自定义校验规则` 来解决这个问题。一个 `validator` 方法提供了第 4 个参数：`source`，这个参数包含了当前所有的表单项的值。
+
+</details>
+
+```jsx
+const passwordValidator = (_rule, password, callback, { username }) => {
+  if (!username) {
+    callback(`User name can't be blank!`);
+    return;
+  }
+  if (!password) {
+    callback(`Password can't be blank!`);
+    return;
+  }
+  callback();
+};
+
+const columns = [
+  {
+    title: 'User Name',
+    dataIndex: 'username',
+    editable: true,
+    editingCtrl: <input />,
+  },
+  {
+    title: 'Password',
+    dataIndex: 'password',
+    editable: true,
+    editingCtrl: <input />,
+    decorateOptions: {
+      rules: [{ validator: passwordValidator }],
+    },
+  },
+];
 ```
