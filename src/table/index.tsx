@@ -34,10 +34,12 @@ export interface AweTableProps<T, V> extends TableProps<T> {
   columns: AweColumnProps<T>[];
   dataSource: T[];
   editingRowKey: string | null;
+  validateFieldIds?: string[];
+  forceValidateOnSave: boolean;
   canDelete(record: T, idx: number, hasEditingRow: boolean): boolean;
   onSave(editingRowKey: string, data: T[]): void;
   onEdit(rowKey: string): void;
-  onCancel(unsetRowKey: typeof AweEditableTable.UNSET_EDITING_ROW_KEY): void;
+  onCancel(rowKey: string): void;
   onDelete(rowKey: string, data: T[]): void;
 }
 
@@ -52,6 +54,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
   static defaultProps: Partial<AweTableProps<any, any>> = {
     rowKey: 'key',
     editingRowKey: AweEditableTable.UNSET_EDITING_ROW_KEY,
+    forceValidateOnSave: false,
     pagination: false,
     canDelete: (_record, _idx, hasEditingRow) => hasEditingRow,
     onSave: () => {},
@@ -85,13 +88,17 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
   };
 
   private _saveHandler = (record: T, idx: number) => {
-    const { form, onSave } = this.props;
-    form.validateFields((errorMap, valueMap) => {
-      if (errorMap) {
-        return;
+    const { form, validateFieldIds, forceValidateOnSave, onSave } = this.props;
+    form.validateFields(
+      validateFieldIds! /* undefined is ok */,
+      { force: forceValidateOnSave },
+      (errorMap: any, valueMap: V) => {
+        if (errorMap) {
+          return;
+        }
+        onSave(this._getRowKey(record, idx), this._getUpdatedData(record, idx, valueMap));
       }
-      onSave(this._getRowKey(record, idx), this._getUpdatedData(record, idx, valueMap));
-    });
+    );
   };
 
   /**
@@ -121,8 +128,8 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
     return data;
   };
 
-  private _cancelHandler = () => {
-    this.props.onCancel(AweEditableTable.UNSET_EDITING_ROW_KEY);
+  private _cancelHandler = (record: T, idx: number) => {
+    this.props.onCancel(this._getRowKey(record, idx));
   };
 
   private _editHandler = (record: T, idx: number) => {
@@ -203,7 +210,7 @@ interface GetDefaultActionsColumnOpts<T> {
   canDelete(record: T, idx: number): boolean;
   isEditing(record: T, idx: number): boolean;
   onSave(record: T, idx: number): void;
-  onCancel(): void;
+  onCancel(record: T, idx: number): void;
   onEdit(record: T, idx: number): void;
   onDelete(record: T, idx: number): void;
 }
@@ -242,7 +249,7 @@ const getDefaultActionsColumn = <T extends object>(
           aria-label="button: cancel"
           type="link"
           onClick={() => {
-            onCancel();
+            onCancel(record, idx);
           }}
         >
           {locale.cancelBtn}
