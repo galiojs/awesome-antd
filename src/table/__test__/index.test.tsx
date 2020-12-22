@@ -1,11 +1,14 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import Schema from 'async-validator';
 
 import EditableTable, {
   NAME_REQUIRED_ERROR_MESSAGE,
   AGE_REQUIRED_ERROR_MESSAGE,
 } from './../../stories/EditableTable';
+
+Schema.warning = function () {};
 
 describe('Testing <AweEditableTable />', () => {
   test('Add, edit, delete rows.', async () => {
