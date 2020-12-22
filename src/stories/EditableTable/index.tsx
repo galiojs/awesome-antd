@@ -42,6 +42,19 @@ export const AGE_REQUIRED_ERROR_MESSAGE = 'age is required';
 
 const AweEditableTable = createEditableTable<Record, Omit<Record, 'key'>>();
 
+const childValidator = (
+  _rule: any,
+  child: string,
+  callback: Function,
+  { age }: { age?: number }
+) => {
+  if (age !== undefined && age < 22 && child) {
+    callback('Child is not allowed.');
+    return;
+  }
+  callback();
+};
+
 const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Record>[] => [
   {
     title: 'Name',
@@ -118,6 +131,9 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
     dataIndex: 'child',
     editable: true,
     editingCtrl: <Input style={{ width: 200 }} placeholder="Child name" />,
+    decorateOptions: {
+      rules: [{ validator: childValidator }],
+    },
     render(child, record, idx) {
       const rowSpan = getRowSpan(record, idx);
       if (rowSpan >= 1 && child) {
@@ -173,6 +189,7 @@ const EditableTable = ({
 
   return (
     <AweEditableTable
+      forceValidateOnSave
       columns={getColumns({ addRow, getRowSpan })}
       dataSource={data}
       editingRowKey={editingRowKey}
