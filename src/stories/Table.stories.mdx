@@ -185,14 +185,14 @@ const getRowSpan = generateGetRowSpan(data, { mergeProp: 'some-prop-name' });
 
 ### How to validate based on the other form items?
 
-Use `Customized Validation Rules` to solve this edge case. A `validator` function provided the 4th param called `source` that includes all the field values.
+Use `Customized Validation Rules` to solve this edge case. A `validator` function provided the 4th param called `source` that includes all the field values when `forceValidateOnSave` turned on.
 
 <details>
   <summary>简体中文</summary>
 
 ### 如何基于其他表单项来执行表单项校验？
 
-使用 `自定义校验规则` 来解决这个问题。一个 `validator` 方法提供了第 4 个参数：`source`，这个参数包含了当前所有的表单项的值。
+使用 `自定义校验规则` 来解决这个问题。当启用了 `forceValidateOnSave` 后，`validator` 方法提供的第 4 个参数：`source` 将包含了当前所有的表单项的值。
 
 </details>
 
@@ -226,4 +226,14 @@ const columns = [
     },
   },
 ];
+
+export default function App() {
+  return (
+    <EditableTable
+      forceValidateOnSave
+      columns={columns}
+      // ...
+    />
+  );
+}
 ```
