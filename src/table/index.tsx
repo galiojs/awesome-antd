@@ -34,6 +34,7 @@ export interface AweTableProps<T, V> extends TableProps<T> {
   columns: AweColumnProps<T>[];
   dataSource: T[];
   editingRowKey: string | null;
+  showActionsColumn: boolean;
   validateFieldIds?: string[];
   forceValidateOnSave: boolean;
   canDelete(record: T, idx: number, hasEditingRow: boolean): boolean;
@@ -54,6 +55,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
   static defaultProps: Partial<AweTableProps<any, any>> = {
     rowKey: 'key',
     editingRowKey: AweEditableTable.UNSET_EDITING_ROW_KEY,
+    showActionsColumn: false,
     forceValidateOnSave: false,
     pagination: false,
     canDelete: (_record, _idx, hasEditingRow) => hasEditingRow,
@@ -141,50 +143,56 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
   };
 
   render() {
-    const { form, columns, dataSource, editingRowKey, pagination } = this.props;
+    const { form, columns, dataSource, editingRowKey, showActionsColumn, pagination } = this.props;
 
-    const clmns: ColumnProps<T>[] = columns.map(
-      ({ editable, editingId, editingCtrl, decorateOptions, ...clmn }) => {
-        if (!editable) {
-          return clmn;
-        }
+    const clmns: ColumnProps<T>[] = showActionsColumn
+      ? columns.map(({ editable, editingId, editingCtrl, decorateOptions, ...clmn }) => {
+          if (!editable) {
+            return clmn;
+          }
 
-        return {
-          ...clmn,
-          onCell: (record: T, rowIdx: number): EditableCellProps => ({
-            editing: this._isEditing(record, rowIdx),
-            id: (editingId || (clmn.key as string) || clmn.dataIndex)!,
-            editingCtrl: editingCtrl as React.ReactElement,
-            decorateOptions: {
-              initialValue: (record as any)[(clmn.key || clmn.dataIndex)!],
-              ...decorateOptions,
-            },
-          }),
-        };
-      }
-    );
+          return {
+            ...clmn,
+            onCell: (record: T, rowIdx: number): EditableCellProps => ({
+              editing: this._isEditing(record, rowIdx),
+              id: (editingId || (clmn.key as string) || clmn.dataIndex)!,
+              editingCtrl: editingCtrl as React.ReactElement,
+              decorateOptions: {
+                initialValue: (record as any)[(clmn.key || clmn.dataIndex)!],
+                ...decorateOptions,
+              },
+            }),
+          };
+        })
+      : columns;
 
     return (
       <FormContext.Provider value={form}>
         <LocaleReceiver componentName="EditableTable" defaultLocale={defaultLocale.EditableTable}>
           {(locale: EditableTableLocale, localeCode: string) => {
-            const defaultActionsColumn = getDefaultActionsColumn<T>(
-              {
-                editingRowKey,
-                canDelete: this._canDelete,
-                isEditing: this._isEditing,
-                onSave: this._saveHandler,
-                onCancel: this._cancelHandler,
-                onEdit: this._editHandler,
-                onDelete: this._deleteHandler,
-              },
-              { ...locale, localeCode }
-            );
+            let finalColumns = clmns;
+
+            if (showActionsColumn) {
+              const defaultActionsColumn = getDefaultActionsColumn<T>(
+                {
+                  editingRowKey,
+                  canDelete: this._canDelete,
+                  isEditing: this._isEditing,
+                  onSave: this._saveHandler,
+                  onCancel: this._cancelHandler,
+                  onEdit: this._editHandler,
+                  onDelete: this._deleteHandler,
+                },
+                { ...locale, localeCode }
+              );
+
+              finalColumns = [...clmns, defaultActionsColumn];
+            }
 
             return (
               <Table<T>
                 components={{ body: { cell: EditableCell } }}
-                columns={[...clmns, defaultActionsColumn]}
+                columns={finalColumns}
                 dataSource={dataSource}
                 pagination={pagination}
               />
