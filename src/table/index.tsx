@@ -55,7 +55,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
   static defaultProps: Partial<AweTableProps<any, any>> = {
     rowKey: 'key',
     editingRowKey: AweEditableTable.UNSET_EDITING_ROW_KEY,
-    showActionsColumn: false,
+    showActionsColumn: true,
     forceValidateOnSave: false,
     pagination: false,
     canDelete: (_record, _idx, hasEditingRow) => hasEditingRow,
