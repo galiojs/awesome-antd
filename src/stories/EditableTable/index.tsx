@@ -14,6 +14,7 @@ interface Record {
 }
 
 interface GetColumnsOpts {
+  showActionsColumn: boolean;
   addRow(rowData: Record, insertIdx?: number): void;
   getRowSpan(record: Record, idx: number): number;
 }
@@ -21,6 +22,7 @@ interface GetColumnsOpts {
 export interface EditableTableProps {
   defaultData?: Record[];
   defaultEditingRowKey?: string | null;
+  showActionsColumn: boolean;
 }
 
 const generateRowKey = () => 'row-' + Math.random();
@@ -55,7 +57,11 @@ const childValidator = (
   callback();
 };
 
-const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Record>[] => [
+const getColumns = ({
+  showActionsColumn,
+  addRow,
+  getRowSpan,
+}: GetColumnsOpts): AweColumnProps<Record>[] => [
   {
     title: 'Name',
     dataIndex: 'name',
@@ -66,7 +72,7 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
     },
     render(name, record, idx) {
       let children = name;
-      if (idx === 0) {
+      if (idx === 0 && showActionsColumn) {
         children = (
           <span>
             <Icon
@@ -136,7 +142,7 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
     },
     render(child, record, idx) {
       const rowSpan = getRowSpan(record, idx);
-      if (rowSpan >= 1 && child) {
+      if (rowSpan >= 1 && showActionsColumn && child) {
         return (
           <span>
             <Icon
@@ -167,6 +173,7 @@ const getColumns = ({ addRow, getRowSpan }: GetColumnsOpts): AweColumnProps<Reco
 const EditableTable = ({
   defaultData = [getInitialRowData()],
   defaultEditingRowKey,
+  showActionsColumn = true,
 }: EditableTableProps) => {
   const [data, setData] = useState<Record[]>(defaultData);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(
@@ -190,7 +197,8 @@ const EditableTable = ({
   return (
     <AweEditableTable
       forceValidateOnSave
-      columns={getColumns({ addRow, getRowSpan })}
+      showActionsColumn={showActionsColumn}
+      columns={getColumns({ showActionsColumn, addRow, getRowSpan })}
       dataSource={data}
       editingRowKey={editingRowKey}
       onEdit={(rowKey) => {
