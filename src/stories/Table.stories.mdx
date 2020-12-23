@@ -237,3 +237,45 @@ export default function App() {
   );
 }
 ```
+
+## Stories
+
+### Preview Only
+
+Set `showActionsColumn` to `false`.
+
+<Story
+  name="Preview Only"
+  args={{
+    showActionsColumn: false,
+    defaultData: [
+      {
+        key: 'row-0.7680511899736875',
+        mergeRowsKey: 'row-0.7680511899736875',
+        name: 'Emma',
+        age: 22,
+        child: 'Fruit',
+        gender: 'F',
+      },
+      {
+        key: 'row-0.8981918115495107',
+        mergeRowsKey: 'row-0.3092834939272744',
+        name: 'Jerry',
+        age: 30,
+        child: 'Alice',
+        gender: 'M',
+      },
+      {
+        key: 'row-0.3092834939272744',
+        mergeRowsKey: 'row-0.3092834939272744',
+        name: 'Jerry',
+        age: 30,
+        child: 'Fruit',
+        gender: 'M',
+      },
+    ],
+    defaultEditingRowKey: null,
+  }}
+>
+  {Template.bind({})}
+</Story>
