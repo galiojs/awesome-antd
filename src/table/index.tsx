@@ -1,12 +1,7 @@
 import React from 'react';
 import Table, { TableProps, ColumnProps } from 'antd/lib/table';
 import Form from 'antd/lib/form';
-import {
-  WrappedFormUtils,
-  GetFieldDecoratorOptions,
-  FormComponentProps,
-  FormCreateOption,
-} from 'antd/lib/form/Form';
+import { WrappedFormUtils, GetFieldDecoratorOptions, FormCreateOption } from 'antd/lib/form/Form';
 import LocaleReceiver from 'antd/lib/locale-provider/LocaleReceiver';
 
 import EditableCell, { EditableCellProps } from './editable-cell';
@@ -204,10 +199,16 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
   }
 }
 
-export const createEditableTable = <T, V>(
-  options?: FormCreateOption<AweTableProps<T, V> & FormComponentProps<V>>
-): React.ComponentClass<Partial<AweTableProps<T, V>>> =>
-  Form.create(options)(AweEditableTable) as any;
+export interface CreateEditableTableFunc {
+  <T = {}, V = {}, E = {}>(
+    options?: FormCreateOption<AweTableProps<T, V> & E>
+  ): React.ComponentClass<
+    Omit<JSX.LibraryManagedAttributes<typeof AweEditableTable, AweTableProps<T, V>>, 'form'> & E
+  >;
+}
+
+export const createEditableTable: CreateEditableTableFunc = (options) =>
+  Form.create(options)(AweEditableTable as any) as any;
 
 export default Table;
 

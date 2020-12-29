@@ -7,4 +7,8 @@ export default {
     editBtn: 'Edit',
     deleteBtn: 'Delete',
   },
+  FiltersForm: {
+    searchText: 'Search',
+    resetText: 'Reset',
+  },
 };

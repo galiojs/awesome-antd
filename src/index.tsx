@@ -7,3 +7,4 @@ export { default as AweInput } from './input';
 export { default as AweTag } from './tag';
 export { default as AweButton } from './button';
 export { default as AweTable, createEditableTable } from './table';
+export { default as AweFiltersForm, createFiltersForm } from './filters-form';
