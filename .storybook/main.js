@@ -13,7 +13,7 @@ module.exports = {
     const isEnvDevelopment = configType === 'DEVELOPMENT';
     const isEnvProduction = configType === 'PRODUCTION';
 
-    const getStyleLoaders = generateGetStyleLoaders(isEnvDevelopment, isEnvProduction);
+    const getStyleLoaders = generateGetStyleLoaders(true, false);
 
     // Make whatever fine-grained changes you need
     config.module.rules.push({
