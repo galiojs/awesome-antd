@@ -22,7 +22,7 @@ interface GetColumnsOpts {
 export interface EditableTableProps {
   defaultData?: Record[];
   defaultEditingRowKey?: string | null;
-  showActionsColumn: boolean;
+  showActionsColumn?: boolean;
 }
 
 const generateRowKey = () => 'row-' + Math.random();
@@ -234,3 +234,5 @@ const EditableTable = ({
 };
 
 export default EditableTable;
+
+export const BaseEditableTable = createEditableTable();

@@ -1,14 +1,11 @@
 import { Canvas, Story, Meta, ArgsTable, Source } from '@storybook/addon-docs/blocks';
 
-import EditableTable from './EditableTable';
+import EditableTable, { BaseEditableTable } from './EditableTable';
 import code from '!!raw-loader!./EditableTable/index.tsx';
-import { createEditableTable } from './../table';
 
 <Meta title="Example/EditableTable" component={EditableTable} />
 
 <!-- For APIs auto-generation -->
-
-export const BaseEditableTable = createEditableTable();
 
 export const Template = (args) => <EditableTable {...args} />;
 
@@ -16,7 +13,7 @@ export const Template = (args) => <EditableTable {...args} />;
 
 A table with predefined family members data.
 
-<Canvas mdxSource={code}>
+<Canvas withSource="none">
   <Story
     name="Family Tree Table"
     args={{
@@ -52,6 +49,13 @@ A table with predefined family members data.
     {Template.bind({})}
   </Story>
 </Canvas>
+
+<details>
+  <summary>Show code</summary>
+
+<Source language="tsx" code={code} />
+
+</details>
 
 ## Props
 

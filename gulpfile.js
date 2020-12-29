@@ -1,6 +1,8 @@
+const path = require('path');
 const gulp = require('gulp');
 const ts = require('gulp-typescript');
 const babel = require('gulp-babel');
+const less = require('gulp-less');
 const merge2 = require('merge2');
 const rimraf = require('rimraf');
 
@@ -42,4 +44,11 @@ function js() {
   ]);
 }
 
-exports.compile = gulp.series(clean, js);
+function css() {
+  return gulp
+    .src('src/**/style/*.less')
+    .pipe(less({ paths: [path.join(__dirname, 'node_modules', 'antd', 'lib', 'style')] }))
+    .pipe(gulp.dest('es'));
+}
+
+exports.compile = gulp.series(clean, js, css);

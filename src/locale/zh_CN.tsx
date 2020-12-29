@@ -9,4 +9,8 @@ export default {
     editBtn: '编辑',
     deleteBtn: '删除',
   },
+  FiltersForm: {
+    searchText: '搜索',
+    resetText: '重置',
+  },
 };

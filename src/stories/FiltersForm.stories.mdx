@@ -1,0 +1,162 @@
+import { Canvas, Story, Meta, ArgsTable, Source, Description } from '@storybook/addon-docs/blocks';
+
+import App, { items } from './FiltersForm';
+import { BaseFiltersForm, Container } from './FiltersForm/materials';
+import code from '!!raw-loader!./FiltersForm/index.tsx';
+
+<Meta
+  title="Example/FiltersForm"
+  component={BaseFiltersForm}
+  argTypes={{
+    items: { control: { type: null } },
+    form: { table: { disable: true } },
+  }}
+/>
+
+export const Template = (args) => <BaseFiltersForm {...args} />;
+
+# FiltersForm
+
+<Description>To render a separated filters using `Form` component.</Description>
+
+<Canvas withSource="none">
+  <Story
+    name="Simple"
+    argTypes={{
+      items: { table: { disable: true } },
+      defaultExpanded: { table: { disable: true } },
+      onFieldsChange: { type: 'function' },
+    }}
+  >
+    {(args) => <App {...args} />}
+  </Story>
+</Canvas>
+
+<details>
+  <summary>Show code</summary>
+
+<Source language="tsx" code={code} />
+
+</details>
+
+## Props
+
+<ArgsTable of={BaseFiltersForm} />
+
+### FormItem
+
+| Name            | Description                                                                                              | Default |
+| --------------- | -------------------------------------------------------------------------------------------------------- | ------- |
+| id              | string                                                                                                   | -       |
+| decorateOptions | [GetDecorateOptions](<https://3x.ant.design/components/form/#getFieldDecorator(id,-options)-parameters>) | -       |
+| control         | React.ReactElement                                                                                       | -       |
+| ...             | Ref: [antd Form.Item](https://3x.ant.design/components/form-cn/#Form.Item)                               | -       |
+
+## Usage
+
+### Without Store Fields Value
+
+Just import `AweFiltersForm` directly.
+
+```jsx
+import { AweFiltersForm } from '@galiojs/awesome-antd';
+```
+
+### Store Fields Value(for further uses)
+
+You should import `createFiltersForm` to create a `FiltersForm` component.
+
+```jsx
+import { createFiltersForm } from '@galiojs/awesome-antd';
+
+const FiltersForm = createFiltersForm({
+  onFieldsChange: (props, _fields, allFields) => {
+    props.onFieldsChange(allFields);
+  },
+
+  // IF you want `2-way databinding`, you can provide a `mapPropsToFields`.
+  mapPropsToFields: (props) => ({
+    /*...*/
+  }),
+});
+```
+
+## Stories
+
+### Default Expanded
+
+<Story
+  name="Default Expanded"
+  decorators={[
+    (Story) => (
+      <Container width={1366}>
+        <Story />
+      </Container>
+    ),
+  ]}
+  args={{ items, defaultExpanded: true }}
+>
+  {Template.bind({})}
+</Story>
+
+### Size: xxxl(>=1900px)
+
+<Story
+  name="1920"
+  decorators={[
+    (Story) => (
+      <Container width={1920}>
+        <Story />
+      </Container>
+    ),
+  ]}
+  args={{ items }}
+>
+  {Template.bind({})}
+</Story>
+
+### Size: xxl(>=1600px)
+
+<Story
+  name="1680"
+  decorators={[
+    (Story) => (
+      <Container width={1680}>
+        <Story />
+      </Container>
+    ),
+  ]}
+  args={{ items }}
+>
+  {Template.bind({})}
+</Story>
+
+### Size: xl(>=1200px)
+
+<Story
+  name="1440"
+  decorators={[
+    (Story) => (
+      <Container width={1440}>
+        <Story />
+      </Container>
+    ),
+  ]}
+  args={{ items }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="1366"
+  decorators={[
+    (Story) => (
+      <Container width={1366}>
+        <Story />
+      </Container>
+    ),
+  ]}
+  args={{ items }}
+>
+  {Template.bind({})}
+</Story>
