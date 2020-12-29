@@ -52,6 +52,35 @@ export const Template = (args) => <BaseFiltersForm {...args} />;
 | control         | React.ReactElement                                                                                       | -       |
 | ...             | Ref: [antd Form.Item](https://3x.ant.design/components/form-cn/#Form.Item)                               | -       |
 
+## Usage
+
+### Without Store Fields Value
+
+Just import `AweFiltersForm` directly.
+
+```jsx
+import { AweFiltersForm } from '@galiojs/awesome-antd';
+```
+
+### Store Fields Value(for further uses)
+
+You should import `createFiltersForm` to create a `FiltersForm` component.
+
+```jsx
+import { createFiltersForm } from '@galiojs/awesome-antd';
+
+const FiltersForm = createFiltersForm({
+  onFieldsChange: (props, _fields, allFields) => {
+    props.onFieldsChange(allFields);
+  },
+
+  // IF you want `2-way databinding`, you can provide a `mapPropsToFields`.
+  mapPropsToFields: (props) => ({
+    /*...*/
+  }),
+});
+```
+
 ## Stories
 
 ### Default Expanded
