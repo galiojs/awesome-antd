@@ -67,7 +67,10 @@ import { AweFiltersForm } from '@galiojs/awesome-antd';
 You should import `createFiltersForm` to create a `FiltersForm` component.
 
 ```jsx
-import { createFiltersForm } from '@galiojs/awesome-antd';
+import React, { useState } from 'react';
+// DON'T use `import { Form } from 'antd'`
+// Always import `Form` from `@galiojs/awesome-antd`
+import { Form, createFiltersForm } from '@galiojs/awesome-antd';
 
 const FiltersForm = createFiltersForm({
   onFieldsChange: (props, _fields, allFields) => {
@@ -76,9 +79,23 @@ const FiltersForm = createFiltersForm({
 
   // IF you want `2-way databinding`, you can provide a `mapPropsToFields`.
   mapPropsToFields: (props) => ({
-    /*...*/
+    // `props.fields.name` is an object like:
+    // { username: 'username', value: 'Jerry' }
+    username: Form.createFormField(props.fields.username),
   }),
 });
+
+const App = () => {
+  const [fields, setFields] = useState({});
+
+  return (
+    <FiltersForm
+      items={[{ label: 'Username', id: 'username', control: <input /> }]}
+      fields={fields}
+      onFieldsChange={setFields}
+    />
+  );
+};
 ```
 
 ## Stories
