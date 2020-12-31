@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import Form from 'antd/lib/form';
 import Icon from 'antd/lib/icon';
 import LocaleReceiver from 'antd/lib/locale-provider/LocaleReceiver';
@@ -86,56 +86,61 @@ export class FiltersForm<V extends object> extends React.PureComponent<
           const isCollapsed = items.length > MaxVisibleCountMediaMap[breakpoint];
 
           return (
-            <Form
-              aria-label="form"
-              className={`awe-filters-form awe-filters-form--${
-                expanded ? 'expanded' : 'collapsed'
-              } awe-filters-form--${breakpoint}`}
-              colon={false}
-              layout="inline"
-              onSubmit={this._submitHandler}
-              onReset={this._resetHandler}
-            >
-              {items.map(({ id, decorateOptions, control, label, ...itemProps }) => (
-                <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
-                  {getFieldDecorator(
-                    id,
-                    decorateOptions
-                  )(React.cloneElement(control, { style: { width: 200 } }))}
-                </Form.Item>
-              ))}
-              <LocaleReceiver componentName="FiltersForm" defaultLocale={defaultLocale.FiltersForm}>
-                {(locale: FiltersFormLocal) => (
-                  <Form.Item>
-                    <AweButton aria-label="button: submit" type="primary" htmlType="submit">
-                      {locale.searchText}
-                    </AweButton>
-                    {expanded && (
-                      <AweButton
-                        aria-label="button: reset"
-                        style={{ marginLeft: 8 }}
-                        htmlType="reset"
-                      >
-                        {locale.resetText}
-                      </AweButton>
-                    )}
-                    {isCollapsed && (
-                      <AweButton
-                        aria-label="button: collapse"
-                        style={{ fontSize: 12, marginLeft: 8 }}
-                        type="link"
-                        onClick={() => {
-                          this.setState(({ expanded }) => ({ expanded: !expanded }));
-                        }}
-                      >
-                        {' '}
-                        <Icon type={expanded ? 'up' : 'down'} />{' '}
-                      </AweButton>
-                    )}
+            <FiltersFormContext.Provider value={form}>
+              <Form
+                aria-label="form"
+                className={`awe-filters-form awe-filters-form--${
+                  expanded ? 'expanded' : 'collapsed'
+                } awe-filters-form--${breakpoint}`}
+                colon={false}
+                layout="inline"
+                onSubmit={this._submitHandler}
+                onReset={this._resetHandler}
+              >
+                {items.map(({ id, decorateOptions, control, label, ...itemProps }) => (
+                  <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
+                    {getFieldDecorator(
+                      id,
+                      decorateOptions
+                    )(React.cloneElement(control, { style: { width: 200 } }))}
                   </Form.Item>
-                )}
-              </LocaleReceiver>
-            </Form>
+                ))}
+                <LocaleReceiver
+                  componentName="FiltersForm"
+                  defaultLocale={defaultLocale.FiltersForm}
+                >
+                  {(locale: FiltersFormLocal) => (
+                    <Form.Item>
+                      <AweButton aria-label="button: submit" type="primary" htmlType="submit">
+                        {locale.searchText}
+                      </AweButton>
+                      {expanded && (
+                        <AweButton
+                          aria-label="button: reset"
+                          style={{ marginLeft: 8 }}
+                          htmlType="reset"
+                        >
+                          {locale.resetText}
+                        </AweButton>
+                      )}
+                      {isCollapsed && (
+                        <AweButton
+                          aria-label="button: collapse"
+                          style={{ fontSize: 12, marginLeft: 8 }}
+                          type="link"
+                          onClick={() => {
+                            this.setState(({ expanded }) => ({ expanded: !expanded }));
+                          }}
+                        >
+                          {' '}
+                          <Icon type={expanded ? 'up' : 'down'} />{' '}
+                        </AweButton>
+                      )}
+                    </Form.Item>
+                  )}
+                </LocaleReceiver>
+              </Form>
+            </FiltersFormContext.Provider>
           );
         }}
       </ReactResizeDetector>
@@ -187,6 +192,12 @@ export interface CreateFiltersFormFn {
 
 export const createFiltersForm: CreateFiltersFormFn = (options) =>
   Form.create(options)(FiltersForm as any) as any;
+
+const FiltersFormContext = createContext<WrappedFormUtils<any> | undefined>(undefined);
+
+export function useFiltersForm<V>() {
+  return useContext(FiltersFormContext) as WrappedFormUtils<V>;
+}
 
 const EnhancedFiltersForm = createFiltersForm();
 
