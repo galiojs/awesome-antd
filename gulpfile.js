@@ -8,9 +8,15 @@ const rimraf = require('rimraf');
 
 const tsProject = ts.createProject('tsconfig.json');
 
+const pathMap = {
+  esOutput: 'es',
+  jsSrc: ['src/**/*.tsx', '!src/**/__test__/*.test.tsx', '!src/stories/**/*'],
+  cssSrc: 'src/**/style/*.less',
+};
+
 async function clean() {
   return new Promise((resolve, reject) => {
-    rimraf('es', (errors) => {
+    rimraf(pathMap.esOutput, (errors) => {
       if (errors) {
         reject(errors);
       }
@@ -20,12 +26,10 @@ async function clean() {
 }
 
 function js() {
-  const tsResult = gulp
-    .src(['src/**/*.tsx', '!src/**/__test__/*.test.tsx', '!src/stories/**/*'])
-    .pipe(tsProject());
+  const tsResult = gulp.src(pathMap.jsSrc).pipe(tsProject());
 
   return merge2([
-    tsResult.dts.pipe(gulp.dest('es')),
+    tsResult.dts.pipe(gulp.dest(pathMap.esOutput)),
     tsResult.js
       .pipe(
         babel({
@@ -40,15 +44,19 @@ function js() {
           ],
         })
       )
-      .pipe(gulp.dest('es')),
+      .pipe(gulp.dest(pathMap.esOutput)),
   ]);
 }
 
 function css() {
   return gulp
-    .src('src/**/style/*.less')
+    .src(pathMap.cssSrc)
     .pipe(less({ paths: [path.join(__dirname, 'node_modules', 'antd', 'lib', 'style')] }))
-    .pipe(gulp.dest('es'));
+    .pipe(gulp.dest(pathMap.esOutput));
 }
 
 exports.compile = gulp.series(clean, js, css);
+exports.watch = function () {
+  gulp.watch(pathMap.jsSrc, js);
+  gulp.watch(pathMap.cssSrc, css);
+};

@@ -17,6 +17,7 @@ export interface FiltersFormLocal {
 export interface FormItem extends FormItemProps {
   id: string;
   decorateOptions?: GetFieldDecoratorOptions;
+  span?: number;
   control: React.ReactElement;
 }
 
@@ -83,7 +84,22 @@ export class FiltersForm<V extends object> extends React.PureComponent<
       <ReactResizeDetector handleWidth>
         {({ width }: { width: number }) => {
           const breakpoint = getBreakpoint(width);
-          const isCollapsed = items.length > MaxVisibleCountMediaMap[breakpoint];
+          const maxVisibleCount = MaxVisibleCountMediaMap[breakpoint];
+          const { visibleCount } = [...items].reduce(
+            (acc, { span = 1 }, idx, copy) => {
+              acc.totalSpan += span;
+
+              if (acc.totalSpan >= maxVisibleCount) {
+                copy.splice(idx + 1);
+              }
+
+              acc.visibleCount++;
+
+              return acc;
+            },
+            { totalSpan: 0, visibleCount: 0 }
+          );
+          const isCollapsed = items.length > maxVisibleCount;
 
           return (
             <FiltersFormContext.Provider value={form}>
@@ -97,14 +113,24 @@ export class FiltersForm<V extends object> extends React.PureComponent<
                 onSubmit={this._submitHandler}
                 onReset={this._resetHandler}
               >
-                {items.map(({ id, decorateOptions, control, label, ...itemProps }) => (
-                  <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
-                    {getFieldDecorator(
-                      id,
-                      decorateOptions
-                    )(React.cloneElement(control, { style: { width: 200 } }))}
-                  </Form.Item>
-                ))}
+                {items
+                  .slice(0, expanded ? undefined : visibleCount)
+                  .map(({ id, decorateOptions, span, control, label, ...itemProps }) => (
+                    <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
+                      {getFieldDecorator(
+                        id,
+                        decorateOptions
+                      )(
+                        React.cloneElement(control, {
+                          style: {
+                            width:
+                              Number(span) > 1 ? 200 * span! + (92 + 16 + 10) * (span! - 1) : 200,
+                            ...control.props?.style,
+                          },
+                        })
+                      )}
+                    </Form.Item>
+                  ))}
                 <LocaleReceiver
                   componentName="FiltersForm"
                   defaultLocale={defaultLocale.FiltersForm}
@@ -155,7 +181,7 @@ const MaxVisibleCountMediaMap = {
   lg: 3, // >=992px
   xl: 3, // >=1200px
   xxl: 4, // >=1600px
-  xxxl: 5, // >=1900px
+  xxxl: 5, // >=1800px
 };
 
 function noop() {}
@@ -176,11 +202,11 @@ function getBreakpoint(width = window.innerWidth) {
   if (width >= 1200 && width < 1600) {
     return 'xl';
   }
-  if (width >= 1600 && width < 1900) {
+  if (width >= 1600 && width < 1800) {
     return 'xxl';
   }
 
-  // >= 1900
+  // >= 1800
   return 'xxxl';
 }
 
