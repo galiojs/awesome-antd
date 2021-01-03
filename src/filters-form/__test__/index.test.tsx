@@ -15,10 +15,7 @@ describe('Testing <FiltersForm />', () => {
     render(<Demo width={1200} />);
 
     const form = screen.getByRole('form');
-
-    // TODO: The `count` should be 4.
-    // Currently, we have no support for transforming `less` files into `jsdom`.
-    expect(form.childElementCount).toEqual(7);
+    expect(form.childElementCount).toEqual(4);
   });
 
   test('Handle onSearch, onReset, onFieldsChange.', async () => {

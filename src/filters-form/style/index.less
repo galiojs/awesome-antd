@@ -17,6 +17,14 @@
   }
 }
 
+.@{filters-form}.@{filters-form}--expanded {
+  > .ant-form-item {
+    &:last-child {
+      float: right;
+    }
+  }
+}
+
 .@{filters-form}.@{filters-form}--collapsed {
   &.@{filters-form}--xs,
   &.@{filters-form}--sm {
@@ -27,15 +35,5 @@
         }
       }
     }
-  }
-
-  &.@{filters-form}--xs > :nth-child(n + 2):not(:last-child),
-  &.@{filters-form}--sm > :nth-child(n + 3):not(:last-child),
-  &.@{filters-form}--md > :nth-child(n + 3):not(:last-child),
-  &.@{filters-form}--lg > :nth-child(n + 4):not(:last-child),
-  &.@{filters-form}--xl > :nth-child(n + 4):not(:last-child),
-  &.@{filters-form}--xxl > :nth-child(n + 5):not(:last-child),
-  &.@{filters-form}--xxxl > :nth-child(n + 6):not(:last-child) {
-    display: none;
   }
 }

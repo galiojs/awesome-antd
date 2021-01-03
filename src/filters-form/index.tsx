@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import Form from 'antd/lib/form';
 import Icon from 'antd/lib/icon';
 import LocaleReceiver from 'antd/lib/locale-provider/LocaleReceiver';
@@ -17,6 +17,7 @@ export interface FiltersFormLocal {
 export interface FormItem extends FormItemProps {
   id: string;
   decorateOptions?: GetFieldDecoratorOptions;
+  span?: number;
   control: React.ReactElement;
 }
 
@@ -83,59 +84,89 @@ export class FiltersForm<V extends object> extends React.PureComponent<
       <ReactResizeDetector handleWidth>
         {({ width }: { width: number }) => {
           const breakpoint = getBreakpoint(width);
-          const isCollapsed = items.length > MaxVisibleCountMediaMap[breakpoint];
+          const maxVisibleCount = MaxVisibleCountMediaMap[breakpoint];
+          const { visibleCount } = [...items].reduce(
+            (acc, { span = 1 }, idx, copy) => {
+              acc.totalSpan += span;
+
+              if (acc.totalSpan >= maxVisibleCount) {
+                copy.splice(idx + 1);
+              }
+
+              acc.visibleCount++;
+
+              return acc;
+            },
+            { totalSpan: 0, visibleCount: 0 }
+          );
+          const isCollapsed = items.length > maxVisibleCount;
 
           return (
-            <Form
-              aria-label="form"
-              className={`awe-filters-form awe-filters-form--${
-                expanded ? 'expanded' : 'collapsed'
-              } awe-filters-form--${breakpoint}`}
-              colon={false}
-              layout="inline"
-              onSubmit={this._submitHandler}
-              onReset={this._resetHandler}
-            >
-              {items.map(({ id, decorateOptions, control, label, ...itemProps }) => (
-                <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
-                  {getFieldDecorator(
-                    id,
-                    decorateOptions
-                  )(React.cloneElement(control, { style: { width: 200 } }))}
-                </Form.Item>
-              ))}
-              <LocaleReceiver componentName="FiltersForm" defaultLocale={defaultLocale.FiltersForm}>
-                {(locale: FiltersFormLocal) => (
-                  <Form.Item>
-                    <AweButton aria-label="button: submit" type="primary" htmlType="submit">
-                      {locale.searchText}
-                    </AweButton>
-                    {expanded && (
-                      <AweButton
-                        aria-label="button: reset"
-                        style={{ marginLeft: 8 }}
-                        htmlType="reset"
-                      >
-                        {locale.resetText}
+            <FiltersFormContext.Provider value={form}>
+              <Form
+                aria-label="form"
+                className={`awe-filters-form awe-filters-form--${
+                  expanded ? 'expanded' : 'collapsed'
+                } awe-filters-form--${breakpoint}`}
+                colon={false}
+                layout="inline"
+                onSubmit={this._submitHandler}
+                onReset={this._resetHandler}
+              >
+                {items
+                  .slice(0, expanded ? undefined : visibleCount)
+                  .map(({ id, decorateOptions, span, control, label, ...itemProps }) => (
+                    <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
+                      {getFieldDecorator(
+                        id,
+                        decorateOptions
+                      )(
+                        React.cloneElement(control, {
+                          style: {
+                            width:
+                              Number(span) > 1 ? 200 * span! + (92 + 16 + 10) * (span! - 1) : 200,
+                            ...control.props?.style,
+                          },
+                        })
+                      )}
+                    </Form.Item>
+                  ))}
+                <LocaleReceiver
+                  componentName="FiltersForm"
+                  defaultLocale={defaultLocale.FiltersForm}
+                >
+                  {(locale: FiltersFormLocal) => (
+                    <Form.Item>
+                      <AweButton aria-label="button: submit" type="primary" htmlType="submit">
+                        {locale.searchText}
                       </AweButton>
-                    )}
-                    {isCollapsed && (
-                      <AweButton
-                        aria-label="button: collapse"
-                        style={{ fontSize: 12, marginLeft: 8 }}
-                        type="link"
-                        onClick={() => {
-                          this.setState(({ expanded }) => ({ expanded: !expanded }));
-                        }}
-                      >
-                        {' '}
-                        <Icon type={expanded ? 'up' : 'down'} />{' '}
-                      </AweButton>
-                    )}
-                  </Form.Item>
-                )}
-              </LocaleReceiver>
-            </Form>
+                      {expanded && (
+                        <AweButton
+                          aria-label="button: reset"
+                          style={{ marginLeft: 8 }}
+                          htmlType="reset"
+                        >
+                          {locale.resetText}
+                        </AweButton>
+                      )}
+                      {isCollapsed && (
+                        <AweButton
+                          aria-label="button: collapse"
+                          style={{ fontSize: 12, marginLeft: 8 }}
+                          type="link"
+                          onClick={() => {
+                            this.setState(({ expanded }) => ({ expanded: !expanded }));
+                          }}
+                        >
+                          {' '}
+                          <Icon type={expanded ? 'up' : 'down'} />{' '}
+                        </AweButton>
+                      )}
+                    </Form.Item>
+                  )}
+                </LocaleReceiver>
+              </Form>
+            </FiltersFormContext.Provider>
           );
         }}
       </ReactResizeDetector>
@@ -150,7 +181,7 @@ const MaxVisibleCountMediaMap = {
   lg: 3, // >=992px
   xl: 3, // >=1200px
   xxl: 4, // >=1600px
-  xxxl: 5, // >=1900px
+  xxxl: 5, // >=1800px
 };
 
 function noop() {}
@@ -171,11 +202,11 @@ function getBreakpoint(width = window.innerWidth) {
   if (width >= 1200 && width < 1600) {
     return 'xl';
   }
-  if (width >= 1600 && width < 1900) {
+  if (width >= 1600 && width < 1800) {
     return 'xxl';
   }
 
-  // >= 1900
+  // >= 1800
   return 'xxxl';
 }
 
@@ -187,6 +218,12 @@ export interface CreateFiltersFormFn {
 
 export const createFiltersForm: CreateFiltersFormFn = (options) =>
   Form.create(options)(FiltersForm as any) as any;
+
+const FiltersFormContext = createContext<WrappedFormUtils<any> | undefined>(undefined);
+
+export function useFiltersForm<V>() {
+  return useContext(FiltersFormContext) as WrappedFormUtils<V>;
+}
 
 const EnhancedFiltersForm = createFiltersForm();
 
