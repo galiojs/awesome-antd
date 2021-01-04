@@ -86,20 +86,21 @@ export class FiltersForm<V extends object> extends React.PureComponent<
           const breakpoint = getBreakpoint(width);
           const maxVisibleCount = MaxVisibleCountMediaMap[breakpoint];
           const { visibleCount } = [...items].reduce(
-            (acc, { span = 1 }, idx, copy) => {
+            (acc, { span = 1 }) => {
               acc.totalSpan += span;
 
-              if (acc.totalSpan >= maxVisibleCount) {
-                copy.splice(idx + 1);
+              if (acc.totalSpan <= maxVisibleCount) {
+                acc.visibleCount++;
               }
-
-              acc.visibleCount++;
 
               return acc;
             },
             { totalSpan: 0, visibleCount: 0 }
           );
-          const isCollapsed = items.length > maxVisibleCount;
+          const isCollapsed = items.length > visibleCount;
+          const spans = items.map(({ span = 1 }) => span);
+          const maxCountPerLine = getMaxCountPerLine(width, spans);
+          const { offsetCount, nthLastItemIdxes } = getOffsetCount(maxCountPerLine, spans);
 
           return (
             <FiltersFormContext.Provider value={form}>
@@ -115,28 +116,51 @@ export class FiltersForm<V extends object> extends React.PureComponent<
               >
                 {items
                   .slice(0, expanded ? undefined : visibleCount)
-                  .map(({ id, decorateOptions, span, control, label, ...itemProps }) => (
-                    <Form.Item key={id} label={<span>{label}</span>} {...itemProps}>
-                      {getFieldDecorator(
-                        id,
-                        decorateOptions
-                      )(
-                        React.cloneElement(control, {
-                          style: {
-                            width:
-                              Number(span) > 1 ? 200 * span! + (92 + 16 + 10) * (span! - 1) : 200,
-                            ...control.props?.style,
-                          },
-                        })
-                      )}
-                    </Form.Item>
-                  ))}
+                  .map(
+                    (
+                      { style, id, decorateOptions, span = 1, control, label, ...itemProps },
+                      index
+                    ) => (
+                      <Form.Item
+                        key={id}
+                        style={{
+                          marginRight: expanded && nthLastItemIdxes.includes(index) ? 0 : undefined,
+                          ...style,
+                        }}
+                        label={<span>{label}</span>}
+                        {...itemProps}
+                      >
+                        {getFieldDecorator(
+                          id,
+                          decorateOptions
+                        )(
+                          React.cloneElement(control, {
+                            style: {
+                              width: getControlWidth(span),
+                              ...control.props?.style,
+                            },
+                          })
+                        )}
+                      </Form.Item>
+                    )
+                  )}
                 <LocaleReceiver
                   componentName="FiltersForm"
                   defaultLocale={defaultLocale.FiltersForm}
                 >
                   {(locale: FiltersFormLocal) => (
-                    <Form.Item>
+                    <Form.Item
+                      style={
+                        expanded
+                          ? {
+                              marginRight: 0,
+                              marginLeft: offsetCount * (ITEM_WIDTH + ITEM_GUTTER),
+                              textAlign: 'right',
+                              width: ITEM_WIDTH,
+                            }
+                          : undefined
+                      }
+                    >
                       <AweButton aria-label="button: submit" type="primary" htmlType="submit">
                         {locale.searchText}
                       </AweButton>
@@ -174,6 +198,12 @@ export class FiltersForm<V extends object> extends React.PureComponent<
   }
 }
 
+const LABEL_WIDTH = 92;
+const CONTROL_WIDTH = 200;
+const LABEL_CONTROL_GUTTER = 10;
+const ITEM_WIDTH = LABEL_WIDTH + CONTROL_WIDTH + LABEL_CONTROL_GUTTER;
+const ITEM_GUTTER = 16;
+
 const MaxVisibleCountMediaMap = {
   xs: 1, // <576px
   sm: 2, // >=576px
@@ -208,6 +238,57 @@ function getBreakpoint(width = window.innerWidth) {
 
   // >= 1800
   return 'xxxl';
+}
+
+function getControlWidth(span: number) {
+  return CONTROL_WIDTH * span + (LABEL_WIDTH + ITEM_GUTTER + LABEL_CONTROL_GUTTER) * (span - 1);
+}
+
+function getItemWidth(span: number) {
+  return LABEL_WIDTH + LABEL_CONTROL_GUTTER + getControlWidth(span);
+}
+
+function getMaxCountPerLine(width = window.innerWidth, spans: number[]) {
+  const copy = [...spans];
+  let span = copy.shift();
+
+  if (!span) {
+    return 0;
+  }
+
+  let count = 0;
+  let widthAcc = getItemWidth(span);
+
+  while (widthAcc <= width) {
+    count += span;
+    span = copy.shift();
+    if (!span) {
+      break;
+    }
+    widthAcc += ITEM_GUTTER + getItemWidth(span);
+  }
+
+  return count;
+}
+
+function getOffsetCount(maxCountPerLine: number, spans: number[]) {
+  let leftCount = 0;
+  const nthLastItemIdxes: number[] = [];
+  spans.forEach((span, index) => {
+    if (leftCount + span > maxCountPerLine) {
+      leftCount = span;
+    } else if (leftCount + span === maxCountPerLine) {
+      leftCount = 0;
+      nthLastItemIdxes.push(index);
+    } else {
+      leftCount += span;
+    }
+  });
+
+  return {
+    offsetCount: Math.abs(maxCountPerLine - (leftCount + /* buttons form item */ 1)),
+    nthLastItemIdxes,
+  };
 }
 
 export interface CreateFiltersFormFn {
