@@ -1,0 +1,39 @@
+@ant-prefix: ant;
+
+@background-color-light: hsv(0, 0, 98%); // background of header and selected item
+
+@table-prefix-cls: ~'@{ant-prefix}-table';
+@border-color-split: hsv(0, 0, 91%); // split border inside a component
+
+@table-header-bg-sm: @background-color-light;
+
+.@{table-prefix-cls}-small {
+  border-width: 0;
+  border-radius: 0;
+
+  > .@{table-prefix-cls}-content {
+    .@{table-prefix-cls}-placeholder,
+    .@{table-prefix-cls}-row:last-child td {
+      border-bottom: 1px solid @border-color-split;
+    }
+
+    > .@{table-prefix-cls}-header > table,
+    > .@{table-prefix-cls}-body > table,
+    > .@{table-prefix-cls}-scroll > .@{table-prefix-cls}-header > table,
+    > .@{table-prefix-cls}-scroll > .@{table-prefix-cls}-body > table,
+    > .@{table-prefix-cls}-fixed-left > .@{table-prefix-cls}-header > table,
+    > .@{table-prefix-cls}-fixed-right > .@{table-prefix-cls}-header > table,
+    > .@{table-prefix-cls}-fixed-left
+      > .@{table-prefix-cls}-body-outer
+      > .@{table-prefix-cls}-body-inner
+      > table,
+    > .@{table-prefix-cls}-fixed-right
+      > .@{table-prefix-cls}-body-outer
+      > .@{table-prefix-cls}-body-inner
+      > table {
+      > .@{table-prefix-cls}-thead > tr > th {
+        background-color: @table-header-bg-sm;
+      }
+    }
+  }
+}

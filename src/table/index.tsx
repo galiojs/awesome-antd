@@ -1,4 +1,5 @@
 import React from 'react';
+import omit from 'lodash.omit';
 import Table, { TableProps, ColumnProps } from 'antd/lib/table';
 import Form from 'antd/lib/form';
 import { WrappedFormUtils, GetFieldDecoratorOptions, FormCreateOption } from 'antd/lib/form/Form';
@@ -16,17 +17,22 @@ export interface EditableTableLocale {
   deleteBtn: string;
 }
 
-export interface AweColumnProps<T> extends ColumnProps<T> {
+export interface AweColumnProps<T, V = Partial<T>> extends ColumnProps<T> {
   editable?: boolean;
   editingId?: string;
-  editingCtrl?: React.ReactElement;
+  editingCtrl?:
+    | React.ReactElement
+    | ((
+        fieldsValue: V,
+        others: { form: WrappedFormUtils<V>; children: React.ReactNode }
+      ) => React.ReactElement);
   decorateOptions?: GetFieldDecoratorOptions;
 }
 
 export interface AweTableProps<T, V> extends TableProps<T> {
   form: WrappedFormUtils<V>;
   rowKey: string | ((record: T, index: number) => string);
-  columns: AweColumnProps<T>[];
+  columns: AweColumnProps<T, V>[];
   dataSource: T[];
   editingRowKey: string | null;
   showActionsColumn: boolean;
@@ -139,6 +145,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
 
   render() {
     const { form, columns, dataSource, editingRowKey, showActionsColumn, pagination } = this.props;
+    const tableProps: TableProps<T> = omit(this.props, OWN_PROPS);
 
     const clmns: ColumnProps<T>[] = showActionsColumn
       ? columns.map(({ editable, editingId, editingCtrl, decorateOptions, ...clmn }) => {
@@ -148,7 +155,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
 
           return {
             ...clmn,
-            onCell: (record: T, rowIdx: number): EditableCellProps => ({
+            onCell: (record: T, rowIdx: number): EditableCellProps<V> => ({
               editing: this._isEditing(record, rowIdx),
               id: (editingId || (clmn.key as string) || clmn.dataIndex)!,
               editingCtrl: editingCtrl as React.ReactElement,
@@ -168,7 +175,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
             let finalColumns = clmns;
 
             if (showActionsColumn) {
-              const defaultActionsColumn = getDefaultActionsColumn<T>(
+              const defaultActionsColumn = getDefaultActionsColumn<T, V>(
                 {
                   editingRowKey,
                   canDelete: this._canDelete,
@@ -186,6 +193,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
 
             return (
               <Table<T>
+                {...tableProps}
                 components={{ body: { cell: EditableCell } }}
                 columns={finalColumns}
                 dataSource={dataSource}
@@ -214,6 +222,19 @@ export default Table;
 
 export const FormContext = React.createContext<WrappedFormUtils | undefined>(undefined);
 
+const OWN_PROPS = [
+  'form',
+  'editingRowKey',
+  'showActionsColumn',
+  'validateFieldIds',
+  'forceValidateOnSave',
+  'canDelete',
+  'onSave',
+  'onEdit',
+  'onCancel',
+  'onDelete',
+];
+
 interface GetDefaultActionsColumnOpts<T> {
   editingRowKey: string | null;
   canDelete(record: T, idx: number): boolean;
@@ -224,7 +245,7 @@ interface GetDefaultActionsColumnOpts<T> {
   onDelete(record: T, idx: number): void;
 }
 
-const getDefaultActionsColumn = <T extends object>(
+const getDefaultActionsColumn = <T extends object, V = Partial<T>>(
   {
     editingRowKey,
     canDelete,
@@ -235,7 +256,7 @@ const getDefaultActionsColumn = <T extends object>(
     onDelete,
   }: GetDefaultActionsColumnOpts<T>,
   locale: EditableTableLocale & { localeCode: string }
-): AweColumnProps<T> => ({
+): AweColumnProps<T, V> => ({
   title: locale.actionsColumnTitle,
   key: '__awe-table-default-actions-column',
   width: locale.localeCode === 'zh_CN' ? 100 : 120,

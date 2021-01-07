@@ -5,11 +5,15 @@ import LengthCount from './length-count';
 import TextArea from './textarea';
 
 export interface AweInputProps extends InputProps {
-  showLengthCount?: boolean;
+  showLengthCount: boolean;
 }
 
 export class AweInput extends React.PureComponent<AweInputProps> {
   static TextArea = TextArea;
+
+  static defaultProps = {
+    showLengthCount: false,
+  };
 
   render() {
     const { suffix, showLengthCount, ...restProps } = this.props;
