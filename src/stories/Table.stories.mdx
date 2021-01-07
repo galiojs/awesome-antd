@@ -63,13 +63,13 @@ A table with predefined family members data.
 
 ### AweColumnProps
 
-| Name               | Description                                      | Default |
-| ------------------ | ------------------------------------------------ | ------- |
-| editable           | boolean                                          | false   |
-| editingId          | string                                           | -       |
-| editingCtrl        | React.ReactElement                               | -       |
-| decorateOptions    | GetDecorateOptions                               | -       |
-| getDecorateOptions | (record: T, index: number) => GetDecorateOptions | -       |
+| Name               | Description                                                                                                                        | Default |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| editable           | boolean                                                                                                                            | false   |
+| editingId          | string                                                                                                                             | -       |
+| editingCtrl        | React.ReactElement \| `((fieldsValue: V, others: { form: WrappedFormUtils<V>; children: React.ReactNode }) => React.ReactElement)` | -       |
+| decorateOptions    | GetDecorateOptions                                                                                                                 | -       |
+| getDecorateOptions | (record: T, index: number) => GetDecorateOptions                                                                                   | -       |
 
 ## Concepts
 
@@ -242,6 +242,33 @@ export default function App() {
 }
 ```
 
+### Editing Control Conditional Rendering
+
+Provide a render function to render `editingCtrl`.
+
+<details>
+  <summary>简体中文</summary>
+
+### 编辑模式下的控件的条件渲染
+
+提供给 `editingCtrl` 一个方法，这个方法接收的第一个参数是当前行的表单的 `fieldsValue`（表单项数据）。
+
+</details>
+
+```jsx
+const columns = [
+  {
+    id: 'username',
+    // ...
+  },
+  {
+    // ...
+    id: 'password',
+    editingCtrl: ({ username }) => (username ? <input /> : '--'),
+  },
+];
+```
+
 ## Stories
 
 ### Preview Only
@@ -279,6 +306,44 @@ Set `showActionsColumn` to `false`.
       },
     ],
     defaultEditingRowKey: null,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+### Size
+
+<Story
+  name="Size"
+  args={{
+    size: 'small',
+    defaultData: [
+      {
+        key: 'row-0.7680511899736875',
+        mergeRowsKey: 'row-0.7680511899736875',
+        name: 'Emma',
+        age: 22,
+        child: 'Fruit',
+        gender: 'F',
+      },
+      {
+        key: 'row-0.8981918115495107',
+        mergeRowsKey: 'row-0.3092834939272744',
+        name: 'Jerry',
+        age: 30,
+        child: 'Alice',
+        gender: 'M',
+      },
+      {
+        key: 'row-0.3092834939272744',
+        mergeRowsKey: 'row-0.3092834939272744',
+        name: 'Jerry',
+        age: 30,
+        child: 'Fruit',
+        gender: 'M',
+      },
+    ],
+    defaultEditingRowKey: 'row-0.7680511899736875',
   }}
 >
   {Template.bind({})}

@@ -4,22 +4,34 @@ import { WrappedFormUtils, GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 
 import { FormContext } from './';
 
-export interface EditableCellProps {
+export interface EditableCellProps<V> {
   editing: boolean;
   decorateOptions?: GetFieldDecoratorOptions;
-  editingCtrl: React.ReactElement;
+  editingCtrl:
+    | React.ReactElement
+    | ((
+        fieldsValue: V,
+        others: { form: WrappedFormUtils<V>; children: React.ReactNode }
+      ) => React.ReactElement);
   id: string;
 }
 
-export class EditableCell extends React.PureComponent<EditableCellProps> {
-  _renderCell = (form?: WrappedFormUtils) => {
+export class EditableCell<V> extends React.PureComponent<EditableCellProps<V>> {
+  _renderCell = (form: WrappedFormUtils<V>) => {
     const { editing, decorateOptions, editingCtrl, id, children, ...restProps } = this.props;
+
+    let ctrl = null;
+    if (React.isValidElement(editingCtrl)) {
+      ctrl = editingCtrl;
+    } else if (typeof editingCtrl == 'function') {
+      ctrl = editingCtrl(form!.getFieldsValue() as V, { form, children });
+    }
 
     return (
       <td {...restProps}>
         {editing ? (
           <Form.Item style={{ margin: 0 }}>
-            {form?.getFieldDecorator(id, decorateOptions)(editingCtrl)}
+            {React.isValidElement(ctrl) ? form?.getFieldDecorator(id, decorateOptions)(ctrl) : ctrl}
           </Form.Item>
         ) : (
           children
