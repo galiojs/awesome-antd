@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Input, InputNumber, Icon, Select } from 'antd';
 import 'antd/dist/antd.min.css';
 
 import { createEditableTable, AweColumnProps } from './../../table';
 import { generateGetRowSpan } from './../../table/utils';
+import './../../table/style';
 
 interface Record {
   key: string;
@@ -14,15 +15,17 @@ interface Record {
 }
 
 interface GetColumnsOpts {
+  size?: 'default' | 'middle' | 'small';
   showActionsColumn: boolean;
   addRow(rowData: Record, insertIdx?: number): void;
   getRowSpan(record: Record, idx: number): number;
 }
 
 export interface EditableTableProps {
+  size?: 'default' | 'middle' | 'small';
+  showActionsColumn?: boolean;
   defaultData?: Record[];
   defaultEditingRowKey?: string | null;
-  showActionsColumn?: boolean;
 }
 
 const generateRowKey = () => 'row-' + Math.random();
@@ -171,9 +174,10 @@ const getColumns = ({
 ];
 
 const EditableTable = ({
+  size,
+  showActionsColumn = true,
   defaultData = [getInitialRowData()],
   defaultEditingRowKey,
-  showActionsColumn = true,
 }: EditableTableProps) => {
   const [data, setData] = useState<Record[]>(defaultData);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(
@@ -192,13 +196,16 @@ const EditableTable = ({
     setDeleteByCancel(true);
   };
 
-  const getRowSpan = useCallback(generateGetRowSpan(data), [data]);
-
   return (
     <AweEditableTable
+      size={size}
       forceValidateOnSave
       showActionsColumn={showActionsColumn}
-      columns={getColumns({ showActionsColumn, addRow, getRowSpan })}
+      columns={getColumns({
+        showActionsColumn,
+        addRow,
+        getRowSpan: generateGetRowSpan(data),
+      })}
       dataSource={data}
       editingRowKey={editingRowKey}
       onEdit={(rowKey) => {

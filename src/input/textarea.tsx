@@ -4,12 +4,12 @@ import Input, { TextAreaProps } from 'antd/lib/input';
 import LengthCount from './length-count';
 
 export interface AweTextAreaProps extends TextAreaProps {
-  showLengthCount?: boolean;
+  showLengthCount: boolean;
 }
 
 export class TextArea extends React.PureComponent<AweTextAreaProps> {
-  static defaultProps: Partial<AweTextAreaProps> = {
-    showLengthCount: false
+  static defaultProps = {
+    showLengthCount: false,
   };
 
   render() {
