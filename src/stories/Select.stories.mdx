@@ -1,0 +1,51 @@
+import { Canvas, Story, Meta, ArgsTable, Description } from '@storybook/addon-docs/blocks';
+
+import Select from './../select';
+
+<Meta title="Example/Select" component={Select} />
+
+# Select
+
+<Description>Select component to select value from options.</Description>
+
+<Canvas>
+  <Story
+    name="Local filtering"
+    args={{
+      style: { width: 200 },
+      showSearch: true,
+      options: [
+        { label: 'Option 1', value: 'option-1' },
+        { label: 'Option 2', value: 'option-2' },
+      ],
+    }}
+  >
+    {(args) => <Select {...args} />}
+  </Story>
+</Canvas>
+
+## Props
+
+<ArgsTable of={Select} />
+
+### OptionProps
+
+Ref: [OptionProps@Select@antd@3.x](https://3x.ant.design/components/select/#Option-props)
+
+## Features Beyond `Select@antd@3.x`
+
+- [x] Define the select options by `options` prop.
+- [x] Use `option.label` to filter options by default.
+
+## Stories
+
+### JSX Style Options
+
+<Canvas>
+  <Story name="JSX Style Options">
+    <Select style={{ width: 200 }}>
+      <Select.Option value="option-1">Option 1</Select.Option>
+      <Select.Option value="option-2">Option 2</Select.Option>
+    </Select>
+  </Story>
+</Canvas>

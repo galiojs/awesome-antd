@@ -4,7 +4,7 @@ import debounce from 'lodash.debounce';
 import { SelectValue } from 'antd/lib/select';
 
 import { DataService } from './../renderProps/data-service';
-import AweSelect, { AweSelectProps } from './../select';
+import Select, { SelectProps } from './../select';
 
 type FieldNames = {
   dataLabel?: string | ((option: any) => string);
@@ -14,7 +14,7 @@ type FieldNames = {
 
 type EnhancedOnChange = (value: SelectValue, option: any, optionElem: React.ReactElement) => void;
 
-export interface AweApiSelectProps extends AweSelectProps {
+export interface AweApiSelectProps extends SelectProps {
   /**
    * @deprecated As of release v0.1.3, replaced by {@link #trigger}.
    *   The same as `trigger="onDidMount"`.
@@ -137,7 +137,7 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
         dataService={dataService}
       >
         {({ data = [] }) => (
-          <AweSelect
+          <Select
             optionFilterProp="data-label"
             filterOption={defaultFilterOption}
             {...rest}
@@ -155,17 +155,12 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
               const disabled = (disabledOptionValues as string[]).includes(value);
 
               return (
-                <AweSelect.Option
-                  key={value}
-                  value={value}
-                  disabled={disabled}
-                  data-label={dataLabel}
-                >
+                <Select.Option key={value} value={value} disabled={disabled} data-label={dataLabel}>
                   {label}
-                </AweSelect.Option>
+                </Select.Option>
               );
             })}
-          </AweSelect>
+          </Select>
         )}
       </DataService>
     );

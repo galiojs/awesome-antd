@@ -5,7 +5,7 @@ export const parameters = {
         'Intro',
         'Internationalization',
         'Example',
-        ['AweInput', 'FiltersForm', 'EditableTable'],
+        ['AweInput', 'Select', 'FiltersForm', 'EditableTable'],
       ],
     },
   },

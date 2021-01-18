@@ -3,7 +3,7 @@ import { InputNumber } from 'antd';
 
 import { createFiltersForm, FormItem, FiltersFormProps } from './../../filters-form';
 import AweInput from './../../input';
-import AweSelect from './../../select';
+import Select from './../../select';
 
 import './../../filters-form/style';
 
@@ -40,11 +40,11 @@ export const items: FormItem[] = [
     label: 'Gender',
     id: 'gender',
     control: (
-      <AweSelect allowClear>
-        <AweSelect.Option value="F">Female</AweSelect.Option>
-        <AweSelect.Option value="M">Male</AweSelect.Option>
-        <AweSelect.Option value="UNKNOW">Unknow</AweSelect.Option>
-      </AweSelect>
+      <Select allowClear>
+        <Select.Option value="F">Female</Select.Option>
+        <Select.Option value="M">Male</Select.Option>
+        <Select.Option value="UNKNOW">Unknow</Select.Option>
+      </Select>
     ),
   },
   { label: 'Children', id: 'children', control: <AweInput /> },
