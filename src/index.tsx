@@ -10,7 +10,10 @@ export { default as ApiSelect } from './api-select';
 
 export { default as AweCascader } from './cascader';
 export { default as AweApiCascader } from './api-cascader';
+
 export { default as AweInput } from './input';
+export { default as Input } from './input';
+
 export { default as AweTag } from './tag';
 export { default as AweButton } from './button';
 export { default as AweTable, createEditableTable } from './table';

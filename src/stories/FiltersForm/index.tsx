@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { InputNumber } from 'antd';
 
 import { createFiltersForm, FormItem, FiltersFormProps } from './../../filters-form';
-import AweInput from './../../input';
+import Input from './../../input';
 import Select from './../../select';
 
 import './../../filters-form/style';
@@ -32,10 +32,10 @@ const FiltersForm = createFiltersForm<FieldsValue, { onFieldsChange: OnFieldsCha
 });
 
 export const items: FormItem[] = [
-  { label: 'User Name', id: 'username', control: <AweInput /> },
+  { label: 'User Name', id: 'username', control: <Input /> },
   { label: 'Age', id: 'age', control: <InputNumber /> },
   { label: 'Salary', id: 'salary', control: <InputNumber /> },
-  { label: 'Job', id: 'job', control: <AweInput /> },
+  { label: 'Job', id: 'job', control: <Input /> },
   {
     label: 'Gender',
     id: 'gender',
@@ -47,7 +47,7 @@ export const items: FormItem[] = [
       </Select>
     ),
   },
-  { label: 'Children', id: 'children', control: <AweInput /> },
+  { label: 'Children', id: 'children', control: <Input /> },
 ];
 
 const App: React.FC<Props> = ({ defaultExpanded = false, onFieldsChange, onSearch, onReset }) => {

@@ -1,14 +1,14 @@
 import React from 'react';
-import Input, { InputProps } from 'antd/lib/input';
+import AntInput, { InputProps as AntInputProps } from 'antd/lib/input';
 
 import LengthCount from './length-count';
 import TextArea from './textarea';
 
-export interface AweInputProps extends InputProps {
+export interface InputProps extends AntInputProps {
   showLengthCount: boolean;
 }
 
-export class AweInput extends React.PureComponent<AweInputProps> {
+export class Input extends React.PureComponent<InputProps> {
   static TextArea = TextArea;
 
   static defaultProps = {
@@ -21,7 +21,7 @@ export class AweInput extends React.PureComponent<AweInputProps> {
     return (
       <LengthCount {...this.props}>
         {({ lengthCount, onChange }) => (
-          <Input
+          <AntInput
             {...restProps}
             suffix={showLengthCount ? lengthCount : suffix}
             onChange={onChange}
@@ -32,4 +32,4 @@ export class AweInput extends React.PureComponent<AweInputProps> {
   }
 }
 
-export default AweInput;
+export default Input;
