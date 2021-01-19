@@ -4,32 +4,34 @@ import shallowequal from 'shallowequal';
 
 export type DataUpdatedCallback = (data: any) => void;
 
-export interface DataServiceProps {
+export interface DataServiceProps<D> {
   requestOnDidMount?: boolean;
   queries?: any[];
   dataService: (...queries: any[]) => any;
   onDataUpdated?: DataUpdatedCallback;
   children: (
-    provided: { data: any; requesting?: boolean },
+    provided: { data?: D; requesting?: boolean },
     transmittedProps?: any
   ) => React.ReactChild;
 }
 
-export interface DataServiceState {
+export interface DataServiceState<D> {
   requesting: boolean;
-  data: any;
+  data?: D;
 }
 
 const OWN_PROPS = ['requestOnDidMount', 'dataService', 'children'];
 
-export class DataService extends React.PureComponent<DataServiceProps, DataServiceState> {
-  static defaultProps: Partial<DataServiceProps> = {
+export class DataService<D = any> extends React.PureComponent<
+  DataServiceProps<D>,
+  DataServiceState<D>
+> {
+  static defaultProps = {
     requestOnDidMount: false,
   };
 
-  state = {
+  state: DataServiceState<D> = {
     requesting: false,
-    data: undefined,
   };
 
   /**
@@ -44,7 +46,7 @@ export class DataService extends React.PureComponent<DataServiceProps, DataServi
     }
   }
 
-  componentDidUpdate({ queries: prevQs }: DataServiceProps) {
+  componentDidUpdate({ queries: prevQs }: DataServiceProps<D>) {
     const { queries } = this.props;
     if (Array.isArray(prevQs) && Array.isArray(queries) && !shallowequal(prevQs, queries)) {
       this._getData(queries);
