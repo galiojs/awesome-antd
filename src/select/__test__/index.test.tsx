@@ -45,7 +45,7 @@ describe('Testing <AweSelect />', () => {
 
     // Note that in the filter procedure,
     // the whitespaces will be trimmed before the matching,
-    // and case insensitive.
+    // and it's case insensitive.
     await userEvent.type(input, '   option 2   ');
 
     expect(screen.queryByText('Option 1')).toBeNull();
