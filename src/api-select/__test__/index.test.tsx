@@ -3,7 +3,7 @@ import axios from 'axios';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AweApiSelect from './..';
+import ApiSelect from './..';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -25,11 +25,11 @@ const options = [
   { text: 'React(2)', label: 'React', value: '2' },
 ];
 
-describe('Testing <AweApiSelect />', () => {
+describe('Testing <ApiSelect />', () => {
   test('fetches options from an API and displays them', async () => {
     mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
-    render(<AweApiSelect dataService={dataService} />);
+    render(<ApiSelect dataService={dataService} />);
 
     await userEvent.click(screen.getByRole('combobox'));
 
@@ -40,10 +40,10 @@ describe('Testing <AweApiSelect />', () => {
     expect(items).toHaveLength(2);
   });
 
-  test('turns on `requestOnDidMount`', async () => {
+  test('did mount mode', async () => {
     mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
-    render(<AweApiSelect defaultOpen requestOnDidMount dataService={dataService} />);
+    render(<ApiSelect defaultOpen requestOnDidMount dataService={dataService} />);
 
     await screen.findByText('Hello');
     await screen.findByText('React');
@@ -56,7 +56,7 @@ describe('Testing <AweApiSelect />', () => {
     mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
     render(
-      <AweApiSelect
+      <ApiSelect
         showSearch
         defaultOpen
         requestOnDidMount
@@ -76,7 +76,7 @@ describe('Testing <AweApiSelect />', () => {
     expect(screen.queryByText('React-2')).toBeNull();
   });
 
-  test('handle `onSearch`', async () => {
+  test('search mode', async () => {
     mockedAxios.get.mockImplementation((__, { params: { keyword } }) => {
       return Promise.resolve({
         data: options.filter(({ label }) =>
@@ -85,7 +85,7 @@ describe('Testing <AweApiSelect />', () => {
       });
     });
 
-    render(<AweApiSelect showSearch trigger="onSearch" dataService={searchDataService} />);
+    render(<ApiSelect trigger="onSearch" dataService={searchDataService} />);
 
     await userEvent.click(screen.getByRole('combobox'));
     await userEvent.type(screen.getByRole('textbox'), 'hello');
@@ -94,8 +94,9 @@ describe('Testing <AweApiSelect />', () => {
     expect(screen.queryByText('React')).toBeNull();
 
     await userEvent.clear(screen.getByRole('textbox'));
-
     await screen.findByText('Hello');
+
+    await userEvent.type(screen.getByRole('textbox'), 'react');
     await screen.findByText('React');
   });
 
@@ -109,14 +110,14 @@ describe('Testing <AweApiSelect />', () => {
     });
 
     const { rerender } = render(
-      <AweApiSelect serviceQueries={['hello']} dataService={searchDataService} />
+      <ApiSelect serviceQueries={['hello']} dataService={searchDataService} />
     );
 
     await userEvent.click(screen.getByRole('combobox'));
     await screen.findByText('Hello');
     expect(screen.queryByText('React')).toBeNull();
 
-    rerender(<AweApiSelect serviceQueries={['react']} dataService={searchDataService} />);
+    rerender(<ApiSelect serviceQueries={['react']} dataService={searchDataService} />);
     await screen.findByText('React');
     expect(screen.queryByText('Hello')).toBeNull();
   });

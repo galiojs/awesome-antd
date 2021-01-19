@@ -1,0 +1,109 @@
+import { Canvas, Story, Meta, ArgsTable, Description } from '@storybook/addon-docs/blocks';
+
+import ApiSelect from './../api-select';
+import { dataService } from './ApiSelect';
+
+<Meta title="Example/ApiSelect" component={ApiSelect} />
+
+# ApiSelect
+
+<Description>ApiSelect component to select value from remote options.</Description>
+
+<Canvas>
+  <Story
+    name="Search Mode"
+    args={{
+      style: { width: 200 },
+      allowClear: true,
+      trigger: 'onSearch',
+      dataService: dataService,
+    }}
+  >
+    {(args) => <ApiSelect {...args} />}
+  </Story>
+</Canvas>
+
+## Props
+
+<ArgsTable of={ApiSelect} />
+
+## Stories
+
+### Focus Mode
+
+Will call `dataService` on `ApiSelect` component focused.
+
+<Canvas>
+  <Story
+    name="Focus Mode"
+    args={{
+      style: { width: 200 },
+      allowClear: true,
+      showSearch: true,
+      defaultValue: 'option-1',
+      dataService: () => dataService('Option'),
+    }}
+  >
+    {(args) => <ApiSelect {...args} />}
+  </Story>
+</Canvas>
+
+No data retrieved.
+
+<Canvas>
+  <Story
+    name="Focus Mode - No Data"
+    args={{
+      style: { width: 200 },
+      allowClear: true,
+      showSearch: true,
+      dataService: dataService,
+    }}
+  >
+    {(args) => <ApiSelect {...args} />}
+  </Story>
+</Canvas>
+
+### Did Mount Mode
+
+Will call `dataService` on `ApiSelect` component did mounted.
+
+<Canvas>
+  <Story
+    name="Did Mount Mode"
+    args={{
+      style: { width: 200 },
+      allowClear: true,
+      showSearch: true,
+      trigger: 'onDidMount',
+      defaultValue: 'option-1',
+      dataService: () => dataService('Option'),
+    }}
+  >
+    {(args) => <ApiSelect {...args} />}
+  </Story>
+</Canvas>
+
+### Service Queries
+
+Will call `dataService` when `serviceQueries` changes.
+
+<Story
+  name="Service Queries"
+  args={{
+    style: { width: 200 },
+    allowClear: true,
+    serviceQueries: ['Option'],
+    dataService: dataService,
+  }}
+  decorators={[
+    (Story) => (
+      <div>
+        <h4>Try to change the `serviceQueries` to `["Awesome antd"]` in the `Controls` addon.</h4>
+        <Story />
+      </div>
+    ),
+  ]}
+>
+  {(args) => <ApiSelect {...args} />}
+</Story>

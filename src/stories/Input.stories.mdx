@@ -1,16 +1,16 @@
 import { Canvas, Story, Meta, ArgsTable, Source, Description } from '@storybook/addon-docs/blocks';
 
-import AweInput from './../input';
+import Input from './../input';
 
 <Meta
-  title="Example/AweInput"
-  component={AweInput}
+  title="Example/Input"
+  component={Input}
   argTypes={{ size: { control: { type: 'radio', options: ['small', 'middle', 'large'] } } }}
 />
 
-export const Template = (args) => <AweInput {...args} />;
+export const Template = (args) => <Input {...args} />;
 
-# AweInput
+# Input
 
 <Description>To input text.</Description>
 
@@ -23,17 +23,17 @@ export const Template = (args) => <AweInput {...args} />;
       maxLength: 10,
     }}
   >
-    {(args) => <AweInput {...args} />}
+    {(args) => <Input {...args} />}
   </Story>
 </Canvas>
 
 ## Props
 
-<ArgsTable of={AweInput} />
+<ArgsTable of={Input} />
 
-## AweInput.TextArea Props
+## Input.TextArea Props
 
-<ArgsTable of={AweInput.TextArea} />
+<ArgsTable of={Input.TextArea} />
 
 ## Stories
 
@@ -46,6 +46,6 @@ export const Template = (args) => <AweInput {...args} />;
       maxLength: 10,
     }}
   >
-    {(args) => <AweInput.TextArea {...args} />}
+    {(args) => <Input.TextArea {...args} />}
   </Story>
 </Canvas>
