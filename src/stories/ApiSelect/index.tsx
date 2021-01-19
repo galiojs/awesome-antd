@@ -5,8 +5,8 @@ export const dataService = (keyword: string) =>
       3 * 1000,
       keyword
         ? [
-            { label: keyword + ' 1', value: 'option-1' },
-            { label: keyword + ' 2', value: 'option-2' },
+            { label: keyword + ' 1', value: keyword + '-1' },
+            { label: keyword + ' 2', value: keyword + '-2' },
           ]
         : undefined
     )
