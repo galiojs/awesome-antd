@@ -6,15 +6,15 @@ import { SelectValue } from 'antd/lib/select';
 import { DataService } from './../renderProps/data-service';
 import Select, { SelectProps } from './../select';
 
-type FieldNames = {
+export interface FieldNames {
   dataLabel?: string | ((option: any) => string);
   label?: string | ((option: any) => React.ReactChild);
   value?: string | ((option: any) => string);
-};
+}
 
 type EnhancedOnChange = (value: SelectValue, option: any, optionElem: React.ReactElement) => void;
 
-export interface AweApiSelectProps extends SelectProps {
+export interface ApiSelectProps extends Omit<SelectProps, 'options'> {
   /**
    * @deprecated As of release v0.1.3, replaced by {@link #trigger}.
    *   The same as `trigger="onDidMount"`.
@@ -35,7 +35,7 @@ export interface AweApiSelectProps extends SelectProps {
    */
   dataDependencies?: any[];
   serviceQueries?: any[];
-  dataService?: (...qs: any[]) => any;
+  dataService: (...qs: any[]) => any;
 }
 
 const DEFAULT_FIELD_NAMES = {
@@ -43,8 +43,8 @@ const DEFAULT_FIELD_NAMES = {
   value: 'value',
 };
 
-export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
-  static defaultProps: Partial<AweApiSelectProps> = {
+export class ApiSelect extends React.PureComponent<ApiSelectProps> {
+  static defaultProps = {
     trigger: 'onFocus',
     optionWithValue: false,
     fieldNames: DEFAULT_FIELD_NAMES,
@@ -52,6 +52,12 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
   };
 
   private _dataServiceRef = React.createRef<DataService>();
+
+  /**
+   * Search keyword reference
+   * Help to determine the `notFoundContent`.
+   */
+  private _keyword = '';
 
   private _getChangeHandler(data: any) {
     const { mode, optionWithValue, fieldNames, onChange } = this.props;
@@ -96,6 +102,12 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
   };
 
   private _searchHandler = (keyword: string) => {
+    if (!keyword) {
+      return;
+    }
+
+    this._keyword = keyword;
+
     const { trigger } = this.props;
     if (trigger !== 'onSearch') {
       return;
@@ -130,51 +142,59 @@ export class AweApiSelect extends React.PureComponent<AweApiSelectProps> {
     }
 
     return (
-      <DataService
+      <DataService<any[]>
         ref={this._dataServiceRef}
         requestOnDidMount={(requestOnDidMount && trigger === 'onFocus') || trigger === 'onDidMount'}
         queries={serviceQueries}
         dataService={dataService}
       >
-        {({ data = [] }) => (
-          <Select
-            optionFilterProp="data-label"
-            filterOption={defaultFilterOption}
-            {...rest}
-            onFocus={this._focusHandler}
-            onSearch={this._debouncedSearchHandler}
-            onChange={this._getChangeHandler(data)}
-          >
-            {data.map((option: any) => {
-              const fieldNameLabel = get(fieldNames, 'label', DEFAULT_FIELD_NAMES.label);
-              const fieldNameDataLabel = get(fieldNames, 'dataLabel', fieldNameLabel);
-              const fieldNameValue = get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value);
-              const label = getPropValue(fieldNameLabel, option);
-              const dataLabel = getPropValue(fieldNameDataLabel, option);
-              const value = getPropValue(fieldNameValue, option);
-              const disabled = (disabledOptionValues as string[]).includes(value);
+        {({ data = [], requesting }) => {
+          const hideNotFoundContent =
+            (trigger === 'onSearch' && !this._keyword && data.length <= 0) || requesting;
 
-              return (
-                <Select.Option key={value} value={value} disabled={disabled} data-label={dataLabel}>
-                  {label}
-                </Select.Option>
-              );
-            })}
-          </Select>
-        )}
+          return (
+            <Select
+              showSearch={trigger === 'onSearch'}
+              showArrow={trigger !== 'onSearch'}
+              optionFilterProp="data-label"
+              filterOption={trigger === 'onSearch' ? false : undefined}
+              notFoundContent={hideNotFoundContent ? null : undefined}
+              {...rest}
+              loading={requesting}
+              onFocus={this._focusHandler}
+              onSearch={this._debouncedSearchHandler}
+              onChange={this._getChangeHandler(data)}
+            >
+              {data.map((option: any) => {
+                const fieldNameLabel = get(fieldNames, 'label', DEFAULT_FIELD_NAMES.label);
+                const fieldNameDataLabel = get(fieldNames, 'dataLabel', fieldNameLabel);
+                const fieldNameValue = get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value);
+                const label = getPropValue(fieldNameLabel, option);
+                const dataLabel = getPropValue(fieldNameDataLabel, option);
+                const value = getPropValue(fieldNameValue, option);
+                const disabled = (disabledOptionValues as string[]).includes(value);
+
+                return (
+                  <Select.Option
+                    key={value}
+                    value={value}
+                    disabled={disabled}
+                    data-label={dataLabel}
+                  >
+                    {label}
+                  </Select.Option>
+                );
+              })}
+            </Select>
+          );
+        }}
       </DataService>
     );
   }
 }
 
-export default AweApiSelect;
+export default ApiSelect;
 
 function getPropValue(prop: string | ((option: any) => React.ReactChild), option: any) {
   return typeof prop === 'function' ? prop(option) : get(option, prop);
-}
-
-function defaultFilterOption(inputValue: string, option: any) {
-  return String(option.props['data-label'])
-    .toLowerCase()
-    .includes(String(inputValue).toLowerCase());
 }

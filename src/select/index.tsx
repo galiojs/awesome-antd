@@ -16,11 +16,14 @@ export class Select extends React.PureComponent<SelectProps> {
   };
 
   render() {
-    const { options, children, ...props } = this.props;
-    const filterOption = generateFilterOption(this.props.optionFilterProp!);
+    const { filterOption, options, children, ...props } = this.props;
+    const defaultFilterOption = generateFilterOption(this.props.optionFilterProp!);
 
     return (
-      <AntSelect filterOption={filterOption} {...props}>
+      <AntSelect
+        filterOption={filterOption === undefined ? defaultFilterOption : filterOption}
+        {...props}
+      >
         {options
           ? options.map((option) => (
               <AntSelect.Option key={option.value} {...option}>

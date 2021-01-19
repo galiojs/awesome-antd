@@ -6,6 +6,8 @@ export { default as AweSelect } from './select';
 export { default as Select } from './select';
 
 export { default as AweApiSelect } from './api-select';
+export { default as ApiSelect } from './api-select';
+
 export { default as AweCascader } from './cascader';
 export { default as AweApiCascader } from './api-cascader';
 export { default as AweInput } from './input';
