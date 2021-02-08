@@ -10,6 +10,9 @@ export interface InputProps extends AntInputProps {
 
 export class Input extends React.PureComponent<InputProps> {
   static TextArea = TextArea;
+  static Password = AntInput.Password;
+  static Search = AntInput.Search;
+  static Group = AntInput.Group;
 
   static defaultProps = {
     showLengthCount: false,
