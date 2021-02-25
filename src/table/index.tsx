@@ -1,5 +1,6 @@
 import React from 'react';
 import omit from 'lodash.omit';
+import get from 'lodash.get';
 import Table, { TableProps, ColumnProps } from 'antd/lib/table';
 import Form from 'antd/lib/form';
 import { WrappedFormUtils, GetFieldDecoratorOptions, FormCreateOption } from 'antd/lib/form/Form';
@@ -153,14 +154,16 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
             return clmn;
           }
 
+          const id = (editingId || (clmn.key as string) || clmn.dataIndex)!;
+
           return {
             ...clmn,
             onCell: (record: T, rowIdx: number): EditableCellProps<V> => ({
               editing: this._isEditing(record, rowIdx),
-              id: (editingId || (clmn.key as string) || clmn.dataIndex)!,
+              id,
               editingCtrl: editingCtrl as React.ReactElement,
               decorateOptions: {
-                initialValue: (record as any)[(clmn.key || clmn.dataIndex)!],
+                initialValue: get(record, id),
                 ...decorateOptions,
               },
             }),
