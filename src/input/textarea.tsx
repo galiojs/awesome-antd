@@ -24,7 +24,7 @@ export class TextArea extends React.PureComponent<AweTextAreaProps> {
               <Input.TextArea style={style} {...restProps} onChange={onChange} />
               {showLengthCount && (
                 <div
-                  style={{ textAlign: 'right', width }}
+                  style={{ textAlign: 'right', width,lineHeight:'22px' }}
                   className="awe-input-textarea-length-count"
                 >
                   {lengthCount}

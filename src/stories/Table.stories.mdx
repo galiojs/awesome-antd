@@ -3,7 +3,11 @@ import { Canvas, Story, Meta, ArgsTable, Source } from '@storybook/addon-docs/bl
 import EditableTable, { BaseEditableTable } from './EditableTable';
 import code from '!!raw-loader!./EditableTable/index.tsx';
 
-<Meta title="Example/EditableTable" component={EditableTable} />
+<Meta
+  title="Example/EditableTable"
+  component={EditableTable}
+  argTypes={{ onSave: { action: 'onSave' } }}
+/>
 
 <!-- For APIs auto-generation -->
 
@@ -63,13 +67,14 @@ A table with predefined family members data.
 
 ### AweColumnProps
 
-| Name               | Description                                                                                                                        | Default |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| editable           | boolean                                                                                                                            | false   |
-| editingId          | string                                                                                                                             | -       |
-| editingCtrl        | React.ReactElement \| `((fieldsValue: V, others: { form: WrappedFormUtils<V>; children: React.ReactNode }) => React.ReactElement)` | -       |
-| decorateOptions    | GetDecorateOptions                                                                                                                 | -       |
-| getDecorateOptions | (record: T, index: number) => GetDecorateOptions                                                                                   | -       |
+| Name               | Description                                                                                                                                                                                          | Default |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| editable           | boolean                                                                                                                                                                                              | false   |
+| mergeStrategy      | Cell merge strategy<br /> > Note: this API is only valid when `editable: true`.<br /> - `rows: true` to indicate that this column will merge rows by Table prop `mergeProp`.<br /> { rows: boolean } | -       |
+| editingId          | string                                                                                                                                                                                               | -       |
+| editingCtrl        | React.ReactElement \| `((fieldsValue: V, others: { form: WrappedFormUtils; children: React.ReactNode }) => React.ReactElement)`                                                                      | -       |
+| decorateOptions    | GetDecorateOptions                                                                                                                                                                                   | -       |
+| getDecorateOptions | (record: T, index: number) => GetDecorateOptions                                                                                                                                                     | -       |
 
 ## Concepts
 
@@ -174,6 +179,8 @@ By default, this function expects every row data has a property `mergeRowsKey`, 
 
 If your row data has another property to use to merge rows, you can specify it like this:
 
+Note: You need to set `mergeStrategy` as well, to insure that `onSave` provides the correct new table data.
+
 <details>
   <summary>简体中文</summary>
 
@@ -181,10 +188,34 @@ If your row data has another property to use to merge rows, you can specify it l
 
 如果你期望使用行数据中的其他属性来合并行，你可以这么指定：
 
+注意： 需同时指定 `mergeStrategy`， 以确保 `onSave` 时可以将需要合并的行的数据同步更新。
+
 </details>
 
 ```jsx
-const getRowSpan = generateGetRowSpan(data, { mergeProp: 'some-prop-name' });
+const getRowSpan = generateGetRowSpan(/* This is Table datasource */ data, {
+  mergeProp: 'some-prop-name',
+});
+
+const columns = [
+  {
+    // ...
+    editable: true,
+    mergeStrategy: {
+      // It says we merge rows while rendering this column.
+      // 这里表示我们会在渲染这个列时进行合并行的操作。
+      rows: true,
+    },
+    render(_text, record, idx) {
+      return {
+        children: <span>Cell Text</span>,
+        props: {
+          rowSpan: getRowSpan(record, idx),
+        },
+      };
+    },
+  },
+];
 ```
 
 ### How to validate based on the other form items?
