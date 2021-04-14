@@ -26,6 +26,7 @@ export interface EditableTableProps {
   showActionsColumn?: boolean;
   defaultData?: Record[];
   defaultEditingRowKey?: string | null;
+  onSave: Function;
 }
 
 const generateRowKey = () => 'row-' + Math.random();
@@ -69,6 +70,9 @@ const getColumns = ({
     title: 'Name',
     dataIndex: 'name',
     editable: true,
+    mergeStrategy: {
+      rows: true,
+    },
     editingCtrl: <Input aria-label="field: name" style={{ width: 200 }} />,
     decorateOptions: {
       rules: [{ required: true, message: NAME_REQUIRED_ERROR_MESSAGE }],
@@ -102,6 +106,9 @@ const getColumns = ({
     title: 'Age',
     dataIndex: 'age',
     editable: true,
+    mergeStrategy: {
+      rows: true,
+    },
     editingCtrl: <InputNumber />,
     decorateOptions: {
       rules: [{ required: true, message: AGE_REQUIRED_ERROR_MESSAGE }],
@@ -119,6 +126,9 @@ const getColumns = ({
     title: 'Gender',
     dataIndex: 'gender',
     editable: true,
+    mergeStrategy: {
+      rows: true,
+    },
     editingCtrl: (
       <Select style={{ minWidth: 80 }}>
         <Select.Option value="F">Female</Select.Option>
@@ -173,11 +183,13 @@ const getColumns = ({
   },
 ];
 
+const noop = () => {};
 const EditableTable = ({
   size,
   showActionsColumn = true,
   defaultData = [getInitialRowData()],
   defaultEditingRowKey,
+  onSave = noop,
 }: EditableTableProps) => {
   const [data, setData] = useState<Record[]>(defaultData);
   const [editingRowKey, setEditingRowKey] = useState<string | null>(
@@ -201,6 +213,7 @@ const EditableTable = ({
       size={size}
       forceValidateOnSave
       showActionsColumn={showActionsColumn}
+      mergeProp="mergeRowsKey"
       columns={getColumns({
         showActionsColumn,
         addRow,
@@ -229,6 +242,8 @@ const EditableTable = ({
         setData(data);
         setEditingRowKey(null);
         setDeleteByCancel(false);
+
+        onSave(__, data);
       }}
       onDelete={(rowKey, data) => {
         setData(data);

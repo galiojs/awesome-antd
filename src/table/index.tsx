@@ -1,6 +1,7 @@
 import React from 'react';
 import omit from 'lodash.omit';
 import get from 'lodash.get';
+import pick from 'lodash.pick';
 import Table, { TableProps, ColumnProps } from 'antd/lib/table';
 import Form from 'antd/lib/form';
 import { WrappedFormUtils, GetFieldDecoratorOptions, FormCreateOption } from 'antd/lib/form/Form';
@@ -20,6 +21,16 @@ export interface EditableTableLocale {
 
 export interface AweColumnProps<T, V = Partial<T>> extends ColumnProps<T> {
   editable?: boolean;
+
+  /**
+   * Cell merge strategy
+   * > Note: this API is only valid when `editable: true`.
+   * - `rows: true` to indicate that this column will merge rows by Table prop `mergeProp`.
+   */
+  mergeStrategy?: {
+    rows?: boolean;
+  };
+
   editingId?: string;
   editingCtrl?:
     | React.ReactElement
@@ -33,6 +44,12 @@ export interface AweColumnProps<T, V = Partial<T>> extends ColumnProps<T> {
 export interface AweTableProps<T, V> extends TableProps<T> {
   form: WrappedFormUtils<V>;
   rowKey: string | ((record: T, index: number) => string);
+
+  /**
+   * Merge rows by this property.
+   */
+  mergeProp: string;
+
   columns: AweColumnProps<T, V>[];
   dataSource: T[];
   editingRowKey: string | null;
@@ -105,12 +122,16 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
     );
   };
 
+  private _getFormItemId = (editingId?: string, key?: string, dataIndex?: string) => {
+    return (editingId || key || dataIndex)!;
+  };
+
   /**
    * If `valueMap` provided as `null`,
    * That means the caller wants to delete the row on index(`currentRowIdx`).
    */
   private _getUpdatedData = (currentRecord: T, currentRowIdx: number, valueMap: V | null) => {
-    const { dataSource } = this.props;
+    const { dataSource, mergeProp, columns } = this.props;
     const rowKey = this._getRowKey(currentRecord, currentRowIdx);
     const updateIdx = dataSource.findIndex(
       (record, rowIdx) => rowKey === this._getRowKey(record, rowIdx)
@@ -125,9 +146,46 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
     // deleting 1 row
     if (valueMap === null) {
       data.splice(updateIdx, 1);
-    } else {
-      data.splice(updateIdx, 1, { ...currentRecord, ...valueMap });
+
+      return data;
     }
+
+    data.splice(updateIdx, 1, { ...currentRecord, ...valueMap });
+    if (typeof mergeProp != 'string') {
+      return data;
+    }
+
+    const mergePropRef = get(dataSource[updateIdx], mergeProp);
+    if (mergePropRef === undefined) {
+      process.env.NODE_ENV === 'development' &&
+        console.error(
+          '[@galiojs/awesome-antd EditableTable]: `mergeProp` is required but undefined on row(%s).',
+          updateIdx,
+          dataSource[updateIdx]
+        );
+      return data;
+    }
+
+    const mergeRowIdxes: number[] = [];
+    dataSource.forEach((record, idx) => {
+      if (idx !== updateIdx && get(record, mergeProp, null) === mergePropRef) {
+        mergeRowIdxes.push(idx);
+      }
+    });
+    const mergeIds: string[] = [];
+    columns.forEach((column) => {
+      if (column.editable && column.mergeStrategy?.rows) {
+        const id = this._getFormItemId(column.editingId, column.key as string, column.dataIndex);
+        mergeIds.push(id);
+      }
+    });
+    const mergeValueMap = pick(valueMap, mergeIds);
+    mergeRowIdxes.forEach((mergeRowIdx) => {
+      data.splice(mergeRowIdx, 1, {
+        ...data[mergeRowIdx],
+        ...mergeValueMap,
+      });
+    });
 
     return data;
   };
@@ -154,7 +212,7 @@ export class AweEditableTable<T extends object, V = Partial<T>> extends React.Pu
             return clmn;
           }
 
-          const id = (editingId || (clmn.key as string) || clmn.dataIndex)!;
+          const id = this._getFormItemId(editingId, clmn.key as string, clmn.dataIndex);
 
           return {
             ...clmn,
