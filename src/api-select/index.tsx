@@ -7,6 +7,9 @@ import { DataService } from './../renderProps/data-service';
 import Select, { SelectProps } from './../select';
 
 export interface FieldNames {
+  /**
+   * @description Will be used as the selected text and hovering title.
+   */
   dataLabel?: string | ((option: any) => string);
   label?: string | ((option: any) => React.ReactChild);
   value?: string | ((option: any) => string);
@@ -179,6 +182,7 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
                     key={value}
                     value={value}
                     disabled={disabled}
+                    title={dataLabel}
                     data-label={dataLabel}
                   >
                     {label}
