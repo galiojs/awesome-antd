@@ -63,7 +63,7 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
   private _keyword = '';
 
   private _getChangeHandler(data: any) {
-    const { mode, optionWithValue, fieldNames, onChange } = this.props;
+    const { mode, labelInValue, optionWithValue, fieldNames, onChange } = this.props;
 
     if (typeof onChange !== 'function') {
       return;
@@ -71,14 +71,33 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
 
     return (value: any, optionElem: any) => {
       if (optionWithValue) {
-        let option = data.find(
-          (opt: any) =>
-            getPropValue(get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value), opt) === value
-        );
+        let option;
         if (['multiple', 'tags'].includes(String(mode)) && Array.isArray(value)) {
-          option = data.filter((opt: any) =>
-            value.includes(getPropValue(get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value), opt))
-          );
+          let values: string[] = value;
+          if (labelInValue) {
+            values = value.map(({ key }) => key);
+          }
+          option = data.filter((opt: any) => {
+            const optionValue = getPropValue(
+              get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value),
+              opt
+            );
+
+            return values.includes(optionValue);
+          });
+        } else {
+          let key: string = value;
+          if (labelInValue) {
+            key = value.key;
+          }
+          option = data.find((opt: any) => {
+            const optionValue = getPropValue(
+              get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value),
+              opt
+            );
+
+            return key === optionValue;
+          });
         }
         (onChange as EnhancedOnChange)(value, option, optionElem);
       } else {
