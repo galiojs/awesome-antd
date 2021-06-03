@@ -1,9 +1,14 @@
-import { Canvas, Story, Meta, ArgsTable, Description } from '@storybook/addon-docs/blocks';
+import { Canvas, Story, Meta, ArgsTable, Description, Source } from '@storybook/addon-docs/blocks';
 
 import ApiSelect from './../api-select';
 import { dataService } from './ApiSelect';
+import code from '!!raw-loader!./ApiSelect/index.tsx';
 
-<Meta title="Example/ApiSelect" component={ApiSelect} />
+<Meta
+  title="Example/ApiSelect"
+  component={ApiSelect}
+  argTypes={{ onChange: { action: 'onChange' } }}
+/>
 
 # ApiSelect
 
@@ -26,6 +31,12 @@ import { dataService } from './ApiSelect';
 ## Props
 
 <ArgsTable of={ApiSelect} />
+
+## Util Functions
+
+### The `dataService` used across the stories
+
+<Source language="tsx" code={code} />
 
 ## Stories
 
@@ -107,3 +118,72 @@ Will call `dataService` when `serviceQueries` changes.
 >
   {(args) => <ApiSelect {...args} />}
 </Story>
+
+### Custom Option Label
+
+Use `fieldNames.dataLabel` & `optionLabelProp="data-label"` to customized option label(i.e. the text which showing what you selected).
+
+```jsx
+<ApiSelect
+  style={{ width: 200 }}
+  allowClear={true}
+  fieldNames={{
+    dataLabel: 'label',
+    label: ({ label, description }) => (
+      <>
+        <p>{label}</p>
+        <p>{description}</p>
+      </>
+    ),
+  }}
+  optionLabelProp="data-label"
+  dataService={() => dataService('Option')}
+/>
+```
+
+<Story
+  name="Custom Option Label"
+  args={{
+    style: { width: 200 },
+    allowClear: true,
+    fieldNames: {
+      dataLabel: 'label',
+      label: ({ label, description }) => (
+        <>
+          <p>{label}</p>
+          <p>📝&nbsp;{description}</p>
+        </>
+      ),
+    },
+    optionLabelProp: 'data-label',
+    dataService: () => dataService('Option'),
+  }}
+>
+  {(args) => <ApiSelect {...args} />}
+</Story>
+
+### Option With Value
+
+Sometimes we need other fields in the options data other than a `value` that `change` event gives you as the 1st parameter. So here is the `optionWithValue` prop that can help, it tells `change` event gives you the 2nd parameter that we can call `optionData`(or `optionsData` when `mode` is `multiple/tags`), that is the option data source you provided by the `dataService`.
+
+<Canvas>
+  <Story
+    name="Option With Value"
+    args={{
+      style: { width: 200 },
+      allowClear: true,
+      optionWithValue: true,
+      dataService: () => dataService('Option'),
+    }}
+    decorators={[
+      (Story) => (
+        <div>
+          <h4>View the `change` event logs in the `Actions` addon.</h4>
+          <Story />
+        </div>
+      ),
+    ]}
+  >
+    {(args) => <ApiSelect {...args} />}
+  </Story>
+</Canvas>
