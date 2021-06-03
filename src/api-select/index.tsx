@@ -29,6 +29,9 @@ export interface ApiSelectProps extends Omit<SelectProps, 'options'> {
    */
   trigger?: 'onDidMount' | 'onFocus' | 'onSearch';
 
+  /**
+   * See [Option With Value](#option-with-value)
+   */
   optionWithValue?: boolean;
   fieldNames?: FieldNames;
   disabledOptionValues?: string[];
