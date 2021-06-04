@@ -3,6 +3,7 @@ import AntInput, { InputProps as AntInputProps } from 'antd/lib/input';
 
 import LengthCount from './length-count';
 import TextArea from './textarea';
+import Search from './search';
 
 export interface InputProps extends AntInputProps {
   showLengthCount: boolean;
@@ -11,7 +12,7 @@ export interface InputProps extends AntInputProps {
 export class Input extends React.PureComponent<InputProps> {
   static TextArea = TextArea;
   static Password = AntInput.Password;
-  static Search = AntInput.Search;
+  static Search = Search;
   static Group = AntInput.Group;
 
   static defaultProps = {
