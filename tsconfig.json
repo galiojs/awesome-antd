@@ -10,7 +10,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitAny": true,
-    "lib": ["DOM", "ES2017"],
+    "lib": ["DOM", "DOM.Iterable", "ES2017"],
     "skipLibCheck": true
   },
   "include": ["src/**/*.tsx"],

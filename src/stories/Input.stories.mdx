@@ -5,7 +5,10 @@ import Input from './../input';
 <Meta
   title="Example/Input"
   component={Input}
-  argTypes={{ size: { control: { type: 'radio', options: ['small', 'middle', 'large'] } } }}
+  argTypes={{
+    size: { control: { type: 'radio', options: ['small', 'middle', 'large'] } },
+    onChange: { action: 'onChange' },
+  }}
 />
 
 export const Template = (args) => <Input {...args} />;
@@ -37,6 +40,8 @@ export const Template = (args) => <Input {...args} />;
 
 ## Stories
 
+### Textarea
+
 <Canvas>
   <Story
     name="Textarea"
@@ -47,5 +52,26 @@ export const Template = (args) => <Input {...args} />;
     }}
   >
     {(args) => <Input.TextArea {...args} />}
+  </Story>
+</Canvas>
+
+### Disallow fire `onSearch` on clear icon clicked
+
+The Input.Search(antd@3.x) component would fire `onSearch` when `allowClear` is `true`, as per [this issue](https://github.com/ant-design/ant-design/issues/18729). But we might not need it in some cases(edge cases), and here is the a workaround for you: sets `allowSearchOnClear` to `false`, that's it.
+
+<Canvas>
+  <Story
+    name="Search - Reduce Search Events"
+    args={{
+      style: { width: 400 },
+      allowClear: true,
+      allowSearchOnClear: false,
+      defaultValue: 'Hover me and click the clear icon on the right',
+    }}
+    argTypes={{
+      onSearch: { action: 'onSearch' },
+    }}
+  >
+    {(args) => <Input.Search {...args} />}
   </Story>
 </Canvas>
