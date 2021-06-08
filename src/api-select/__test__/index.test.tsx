@@ -43,7 +43,7 @@ describe('Testing <ApiSelect />', () => {
   test('did mount mode', async () => {
     mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
 
-    render(<ApiSelect defaultOpen requestOnDidMount dataService={dataService} />);
+    render(<ApiSelect defaultOpen trigger="onDidMount" dataService={dataService} />);
 
     await screen.findByText('Hello');
     await screen.findByText('React');
@@ -59,7 +59,7 @@ describe('Testing <ApiSelect />', () => {
       <ApiSelect
         showSearch
         defaultOpen
-        requestOnDidMount
+        trigger="onDidMount"
         fieldNames={{ label: ({ label, value }) => `${label}-${value}`, dataLabel: 'text' }}
         dataService={dataService}
       />
@@ -120,5 +120,25 @@ describe('Testing <ApiSelect />', () => {
     rerender(<ApiSelect serviceQueries={['react']} dataService={searchDataService} />);
     await screen.findByText('React');
     expect(screen.queryByText('Hello')).toBeNull();
+  });
+
+  test('Option with value & Label in value', async () => {
+    mockedAxios.get.mockImplementationOnce(() => Promise.resolve({ data: options }));
+
+    render(
+      <ApiSelect
+        allowClear
+        optionWithValue
+        labelInValue
+        dataService={searchDataService}
+        onChange={() => {}}
+      />
+    );
+
+    const combobox = screen.getByRole('combobox');
+    await userEvent.click(combobox);
+    const optionHello = await screen.findByText('Hello');
+    await userEvent.click(optionHello);
+    await userEvent.click(screen.getByLabelText('icon: close-circle'));
   });
 });
