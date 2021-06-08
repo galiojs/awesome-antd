@@ -1,9 +1,13 @@
 import React from 'react';
-import AntSelect, { SelectProps as AntSelectProps, OptionProps } from 'antd/lib/select';
+import AntSelect, {
+  SelectProps as AntSelectProps,
+  OptionProps,
+  SelectValue,
+} from 'antd/lib/select';
 
 export { OptionProps };
 
-export interface SelectProps extends AntSelectProps {
+export interface SelectProps<T = SelectValue | undefined> extends AntSelectProps<T> {
   options?: OptionProps[];
 }
 
