@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { InputNumber } from 'antd';
+import InputNumber from 'antd/lib/input-number';
+import Form from 'antd/lib/form';
 
 import { createFiltersForm, FormItem, FiltersFormProps } from './../../filters-form';
 import Input from './../../input';
@@ -25,10 +26,21 @@ export interface Props {
   onReset?: FiltersFormProps<FieldsValue>['onReset'];
 }
 
-const FiltersForm = createFiltersForm<FieldsValue, { onFieldsChange: OnFieldsChangeFunc }>({
+const FiltersForm = createFiltersForm<
+  FieldsValue,
+  { fields: Record<keyof FieldsValue, { value: any }>; onFieldsChange: OnFieldsChangeFunc }
+>({
   onFieldsChange: (props, _fields, allFields) => {
     props.onFieldsChange(allFields);
   },
+  mapPropsToFields: (props) => ({
+    username: Form.createFormField(props.fields.username),
+    age: Form.createFormField(props.fields.age),
+    salary: Form.createFormField(props.fields.salary),
+    job: Form.createFormField(props.fields.job),
+    gender: Form.createFormField(props.fields.gender),
+    children: Form.createFormField(props.fields.children),
+  }),
 });
 
 export const items: FormItem[] = [
@@ -39,6 +51,9 @@ export const items: FormItem[] = [
   {
     label: 'Gender',
     id: 'gender',
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.gender.value,
+    }),
     control: (
       <Select allowClear>
         <Select.Option value="F">Female</Select.Option>
@@ -51,12 +66,20 @@ export const items: FormItem[] = [
 ];
 
 const App: React.FC<Props> = ({ defaultExpanded = false, onFieldsChange, onSearch, onReset }) => {
-  const [, setFields] = useState<{ [id: string]: { value?: any } }>();
+  const [fields, setFields] = useState<Record<keyof FieldsValue, { value: any }>>({
+    username: { value: undefined },
+    age: { value: undefined },
+    salary: { value: undefined },
+    job: { value: undefined },
+    gender: { value: undefined },
+    children: { value: undefined },
+  });
 
   return (
     <FiltersForm
       defaultExpanded={defaultExpanded}
       items={items}
+      fields={fields}
       onFieldsChange={(fields) => {
         setFields(fields);
         onFieldsChange && onFieldsChange(fields);
