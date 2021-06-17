@@ -1,7 +1,7 @@
 import React from 'react';
 import get from 'lodash.get';
 import debounce from 'lodash.debounce';
-import { SelectValue } from 'antd/lib/select';
+import { LabeledValue, SelectValue } from 'antd/lib/select';
 
 import { DataService } from './../renderProps/data-service';
 import Select, { SelectProps } from './../select';
@@ -15,7 +15,11 @@ export interface FieldNames {
   value?: string | ((option: any) => string);
 }
 
-type EnhancedOnChange = (value: SelectValue, option: any, optionElem: React.ReactElement) => void;
+type EnhancedOnChange = (
+  value: SelectValue | undefined,
+  option: any,
+  optionElem: React.ReactElement
+) => void;
 
 export interface ApiSelectProps extends Omit<SelectProps, 'options'> {
   /**
@@ -72,40 +76,44 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
       return;
     }
 
-    return (value: any, optionElem: any) => {
-      if (optionWithValue) {
-        let option;
-        if (['multiple', 'tags'].includes(String(mode)) && Array.isArray(value)) {
-          let values: string[] = value;
-          if (labelInValue) {
-            values = value.map(({ key }) => key);
-          }
-          option = data.filter((opt: any) => {
-            const optionValue = getPropValue(
-              get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value),
-              opt
-            );
-
-            return values.includes(optionValue);
-          });
-        } else {
-          let key: string = value;
-          if (labelInValue) {
-            key = value.key;
-          }
-          option = data.find((opt: any) => {
-            const optionValue = getPropValue(
-              get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value),
-              opt
-            );
-
-            return key === optionValue;
-          });
-        }
-        (onChange as EnhancedOnChange)(value, option, optionElem);
-      } else {
+    return (value: SelectValue | undefined, optionElem: any) => {
+      if (!optionWithValue) {
         onChange(value, optionElem);
+        return;
       }
+      let option;
+      if (value === undefined) {
+        (onChange as EnhancedOnChange)(value, option, optionElem);
+        return;
+      }
+      if (['multiple', 'tags'].includes(String(mode)) && Array.isArray(value)) {
+        let values = value;
+        if (labelInValue) {
+          values = (value as LabeledValue[]).map(({ key }) => key);
+        }
+        option = data.filter((opt: any) => {
+          const optionValue = getPropValue<string | number>(
+            get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value),
+            opt
+          );
+
+          return (values as (string | number)[]).includes(optionValue);
+        });
+      } else {
+        let key = value as string | number;
+        if (labelInValue) {
+          key = (value as LabeledValue).key;
+        }
+        option = data.find((opt: any) => {
+          const optionValue = getPropValue(
+            get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value),
+            opt
+          );
+
+          return key === optionValue;
+        });
+      }
+      (onChange as EnhancedOnChange)(value, option, optionElem);
     };
   }
 
@@ -192,10 +200,14 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
             >
               {data.map((option: any) => {
                 const fieldNameLabel = get(fieldNames, 'label', DEFAULT_FIELD_NAMES.label);
-                const fieldNameDataLabel = get(fieldNames, 'dataLabel', fieldNameLabel);
                 const fieldNameValue = get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value);
                 const label = getPropValue(fieldNameLabel, option);
-                const dataLabel = getPropValue(fieldNameDataLabel, option);
+                const fieldNameDataLabel = get(
+                  fieldNames,
+                  'dataLabel',
+                  typeof label == 'string' ? label : ''
+                );
+                const dataLabel = getPropValue<string>(fieldNameDataLabel, option);
                 const value = getPropValue(fieldNameValue, option);
                 const disabled = (disabledOptionValues as string[]).includes(value);
 
@@ -221,6 +233,9 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
 
 export default ApiSelect;
 
-function getPropValue(prop: string | ((option: any) => React.ReactChild), option: any) {
+function getPropValue<T extends React.ReactChild>(
+  prop: string | ((option: any) => T),
+  option: any
+): T {
   return typeof prop === 'function' ? prop(option) : get(option, prop);
 }
