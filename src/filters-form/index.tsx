@@ -14,9 +14,9 @@ export interface FiltersFormLocal {
   resetText: string;
 }
 
-export interface FormItem extends FormItemProps {
+export interface FormItem<P = FiltersFormProps<any>> extends FormItemProps {
   id: string;
-  decorateOptions?: GetFieldDecoratorOptions | ((props: any) => GetFieldDecoratorOptions);
+  decorateOptions?: GetFieldDecoratorOptions | ((props: P) => GetFieldDecoratorOptions);
   span?: number;
   control: React.ReactElement;
 }

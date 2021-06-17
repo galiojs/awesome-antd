@@ -1,6 +1,6 @@
 import { Canvas, Story, Meta, ArgsTable, Source, Description } from '@storybook/addon-docs/blocks';
 
-import App, { items } from './FiltersForm';
+import App, { itemsWithoutDecorateOptions as items } from './FiltersForm';
 import { BaseFiltersForm, Container } from './FiltersForm/materials';
 import code from '!!raw-loader!./FiltersForm/index.tsx';
 
@@ -41,26 +41,28 @@ export const Template = (args) => <BaseFiltersForm {...args} />;
 
 ## Props
 
+### FiltersFormProps<V\>
+
 <ArgsTable of={BaseFiltersForm} />
 
-### FormItem
+### FormItem<P = FiltersFormProps<any\>\>
 
-| Name            | Description                                                                                              | Default |
-| --------------- | -------------------------------------------------------------------------------------------------------- | ------- |
-| id              | string                                                                                                   | -       |
-| decorateOptions | [GetDecorateOptions](<https://3x.ant.design/components/form/#getFieldDecorator(id,-options)-parameters>) | -       |
-| span            | number                                                                                                   | 1       |
-| control         | React.ReactElement                                                                                       | -       |
-| ...             | Ref: [antd Form.Item](https://3x.ant.design/components/form-cn/#Form.Item)                               | -       |
+| Name | Description | Default |
+| --- | --- | --- |
+| id | string | - |
+| decorateOptions | [GetDecorateOptions](<https://3x.ant.design/components/form/#getFieldDecorator(id,-options)-parameters>)\|(props: P) => GetDecorateOptions | - |
+| span | number | 1 |
+| control | React.ReactElement | - |
+| ... | Ref: [antd Form.Item](https://3x.ant.design/components/form-cn/#Form.Item) | - |
 
 ## Usage
 
 ### Without Store Fields Value
 
-Just import `AweFiltersForm` directly.
+Just import `FiltersForm` directly.
 
 ```jsx
-import { AweFiltersForm } from '@galiojs/awesome-antd';
+import { FiltersForm } from '@galiojs/awesome-antd';
 ```
 
 ### Store Fields Value(for further uses)
@@ -86,16 +88,26 @@ const FiltersForm = createFiltersForm({
   }),
 });
 
-const App = () => {
-  const [fields, setFields] = useState({});
+const items = [
+  {
+    label: 'Username',
+    id: 'username',
 
-  return (
-    <FiltersForm
-      items={[{ label: 'Username', id: 'username', control: <input /> }]}
-      fields={fields}
-      onFieldsChange={setFields}
-    />
-  );
+    // set the initial value for the `control` component,
+    // when it did mount, so it won't lose value while
+    // expanding to show up.
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.username.value,
+    }),
+
+    control: <input />,
+  },
+];
+
+const App = () => {
+  const [fields, setFields] = useState({ username: { value: undefined } });
+
+  return <FiltersForm items={items} fields={fields} onFieldsChange={setFields} />;
 };
 ```
 

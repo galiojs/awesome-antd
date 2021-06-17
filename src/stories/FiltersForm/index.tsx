@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import InputNumber from 'antd/lib/input-number';
 import Form from 'antd/lib/form';
+import omit from 'lodash.omit';
 
 import { createFiltersForm, FormItem, FiltersFormProps } from './../../filters-form';
 import Input from './../../input';
@@ -17,6 +18,27 @@ export interface FieldsValue {
   children?: string;
 }
 
+export type Fields = {
+  username: {
+    value: FieldsValue['username'];
+  };
+  age: {
+    value: FieldsValue['age'];
+  };
+  salary: {
+    value: FieldsValue['salary'];
+  };
+  job: {
+    value: FieldsValue['job'];
+  };
+  gender: {
+    value: FieldsValue['gender'];
+  };
+  children: {
+    value: FieldsValue['children'];
+  };
+};
+
 export type OnFieldsChangeFunc = (fields: any) => void;
 
 export interface Props {
@@ -26,10 +48,11 @@ export interface Props {
   onReset?: FiltersFormProps<FieldsValue>['onReset'];
 }
 
-const FiltersForm = createFiltersForm<
-  FieldsValue,
-  { fields: Record<keyof FieldsValue, { value: any }>; onFieldsChange: OnFieldsChangeFunc }
->({
+export type ExtraProps = { fields: Fields; onFieldsChange: OnFieldsChangeFunc };
+
+export type SyntheticFiltersFormProps = FiltersFormProps<FieldsValue> & ExtraProps;
+
+const FiltersForm = createFiltersForm<FieldsValue, ExtraProps>({
   onFieldsChange: (props, _fields, allFields) => {
     props.onFieldsChange(allFields);
   },
@@ -43,11 +66,39 @@ const FiltersForm = createFiltersForm<
   }),
 });
 
-export const items: FormItem[] = [
-  { label: 'User Name', id: 'username', control: <Input /> },
-  { label: 'Age', id: 'age', control: <InputNumber /> },
-  { label: 'Salary', id: 'salary', control: <InputNumber /> },
-  { label: 'Job', id: 'job', control: <Input /> },
+const items: FormItem<SyntheticFiltersFormProps>[] = [
+  {
+    label: 'User Name',
+    id: 'username',
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.username.value,
+    }),
+    control: <Input />,
+  },
+  {
+    label: 'Age',
+    id: 'age',
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.age.value,
+    }),
+    control: <InputNumber />,
+  },
+  {
+    label: 'Salary',
+    id: 'salary',
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.salary.value,
+    }),
+    control: <InputNumber />,
+  },
+  {
+    label: 'Job',
+    id: 'job',
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.job.value,
+    }),
+    control: <Input />,
+  },
   {
     label: 'Gender',
     id: 'gender',
@@ -62,18 +113,32 @@ export const items: FormItem[] = [
       </Select>
     ),
   },
-  { label: 'Children', id: 'children', control: <Input /> },
+  {
+    label: 'Children',
+    id: 'children',
+    decorateOptions: ({ fields }) => ({
+      initialValue: fields.children.value,
+    }),
+    control: <Input />,
+  },
 ];
 
+// for the stories that without 2-way databinding
+export const itemsWithoutDecorateOptions: FormItem[] = items.map((item) =>
+  omit(item, ['decorateOptions'])
+);
+
+const initialFields: Fields = {
+  username: { value: undefined },
+  age: { value: undefined },
+  salary: { value: undefined },
+  job: { value: undefined },
+  gender: { value: undefined },
+  children: { value: undefined },
+};
+
 const App: React.FC<Props> = ({ defaultExpanded = false, onFieldsChange, onSearch, onReset }) => {
-  const [fields, setFields] = useState<Record<keyof FieldsValue, { value: any }>>({
-    username: { value: undefined },
-    age: { value: undefined },
-    salary: { value: undefined },
-    job: { value: undefined },
-    gender: { value: undefined },
-    children: { value: undefined },
-  });
+  const [fields, setFields] = useState<Fields>(initialFields);
 
   return (
     <FiltersForm
