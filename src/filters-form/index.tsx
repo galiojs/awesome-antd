@@ -14,9 +14,9 @@ export interface FiltersFormLocal {
   resetText: string;
 }
 
-export interface FormItem extends FormItemProps {
+export interface FormItem<P = FiltersFormProps<any>> extends FormItemProps {
   id: string;
-  decorateOptions?: GetFieldDecoratorOptions;
+  decorateOptions?: GetFieldDecoratorOptions | ((props: P) => GetFieldDecoratorOptions);
   span?: number;
   control: React.ReactElement;
 }
@@ -132,7 +132,9 @@ export class FiltersForm<V extends object> extends React.PureComponent<
                       >
                         {getFieldDecorator(
                           id,
-                          decorateOptions
+                          typeof decorateOptions == 'function'
+                            ? decorateOptions(this.props)
+                            : decorateOptions
                         )(
                           React.cloneElement(control, {
                             style: {
