@@ -202,12 +202,8 @@ export class ApiSelect extends React.PureComponent<ApiSelectProps> {
                 const fieldNameLabel = get(fieldNames, 'label', DEFAULT_FIELD_NAMES.label);
                 const fieldNameValue = get(fieldNames, 'value', DEFAULT_FIELD_NAMES.value);
                 const label = getPropValue(fieldNameLabel, option);
-                const fieldNameDataLabel = get(
-                  fieldNames,
-                  'dataLabel',
-                  typeof label == 'string' ? label : ''
-                );
-                const dataLabel = getPropValue<string>(fieldNameDataLabel, option);
+                const fieldNameDataLabel = get(fieldNames, 'dataLabel', fieldNameLabel);
+                const dataLabel = String(getPropValue(fieldNameDataLabel, option));
                 const value = getPropValue(fieldNameValue, option);
                 const disabled = (disabledOptionValues as string[]).includes(value);
 
