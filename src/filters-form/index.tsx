@@ -120,31 +120,37 @@ export class FiltersForm<V extends object> extends React.PureComponent<
                     (
                       { style, id, decorateOptions, span = 1, control, label, ...itemProps },
                       index
-                    ) => (
-                      <Form.Item
-                        key={id}
-                        style={{
-                          marginRight: expanded && nthLastItemIdxes.includes(index) ? 0 : undefined,
-                          ...style,
-                        }}
-                        label={<span>{label}</span>}
-                        {...itemProps}
-                      >
-                        {getFieldDecorator(
-                          id,
-                          typeof decorateOptions == 'function'
-                            ? decorateOptions(this.props)
-                            : decorateOptions
-                        )(
-                          React.cloneElement(control, {
-                            style: {
-                              width: getControlWidth(span),
-                              ...control.props?.style,
-                            },
-                          })
-                        )}
-                      </Form.Item>
-                    )
+                    ) => {
+                      const isNthLastItem = nthLastItemIdxes.includes(index);
+
+                      return (
+                        <React.Fragment key={id}>
+                          <Form.Item
+                            style={{
+                              marginRight: expanded && isNthLastItem ? 0 : undefined,
+                              ...style,
+                            }}
+                            label={<span>{label}</span>}
+                            {...itemProps}
+                          >
+                            {getFieldDecorator(
+                              id,
+                              typeof decorateOptions == 'function'
+                                ? decorateOptions(this.props)
+                                : decorateOptions
+                            )(
+                              React.cloneElement(control, {
+                                style: {
+                                  width: getControlWidth(span),
+                                  ...control.props?.style,
+                                },
+                              })
+                            )}
+                          </Form.Item>
+                          {expanded && isNthLastItem && <br />}
+                        </React.Fragment>
+                      );
+                    }
                   )}
                 <LocaleReceiver
                   componentName="FiltersForm"
@@ -279,6 +285,7 @@ function getOffsetCount(maxCountPerLine: number, spans: number[]) {
   spans.forEach((span, index) => {
     if (leftCount + span > maxCountPerLine) {
       leftCount = span;
+      nthLastItemIdxes.push(index - 1);
     } else if (leftCount + span === maxCountPerLine) {
       leftCount = 0;
       nthLastItemIdxes.push(index);
