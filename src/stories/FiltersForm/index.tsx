@@ -92,6 +92,7 @@ const items: FormItem<SyntheticFiltersFormProps>[] = [
     control: <InputNumber />,
   },
   {
+    span: 2,
     label: 'Job',
     id: 'job',
     decorateOptions: ({ fields }) => ({
@@ -114,6 +115,7 @@ const items: FormItem<SyntheticFiltersFormProps>[] = [
     ),
   },
   {
+    span: 2,
     label: 'Children',
     id: 'children',
     decorateOptions: ({ fields }) => ({
